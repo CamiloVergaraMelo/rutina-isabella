@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Rutina Isabella">
+<meta name="theme-color" content="#140E33">
+<link rel="apple-touch-icon" href="assets/app-icon.png">
+<title>Isabella · Rutina Espacial</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&family=Orbitron:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#2E2450;--ink-soft:#6A5F92;
+    --panel:rgba(249,246,255,.94);--panel-2:#EFE9FB;--border:rgba(120,90,200,.22);
+    --screen:#171043;
+    --sunrise:#FF9EB0;--midday:#3FD0BE;--afternoon:#C79BF2;--evening:#7FBEF5;--night:#A38BF0;
+    --radius:24px;
+    --shadow:0 16px 36px -16px rgba(20,8,50,.7);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Nunito',system-ui,sans-serif;color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased;padding:calc(14px + env(safe-area-inset-top)) env(safe-area-inset-right) calc(70px + env(safe-area-inset-bottom)) env(safe-area-inset-left);
+    background:
+      radial-gradient(1200px 720px at 82% -6%, rgba(200,120,240,.30), transparent 60%),
+      radial-gradient(900px 620px at 6% 14%, rgba(120,150,240,.24), transparent 55%),
+      radial-gradient(760px 760px at 60% 104%, rgba(150,90,220,.22), transparent 60%),
+      linear-gradient(180deg,#160F3A 0%,#241653 46%,#140E33 100%);
+    background-attachment:fixed;}
+  .wrap{max-width:540px;margin:0 auto;padding:0 16px}
+
+  /* ---------- COSMOS ---------- */
+  .cosmos{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
+  .cosmos .st{position:absolute;border-radius:50%;background:#fff;box-shadow:0 0 6px 1px rgba(255,255,255,.5);animation:tw 4s ease-in-out infinite}
+  .cosmos .ys{position:absolute;color:#FFD65C;font-size:.7rem;filter:drop-shadow(0 0 5px rgba(255,210,80,.8));animation:tw 5s ease-in-out infinite}
+  .cosmos .shoot{position:absolute;width:80px;height:2px;border-radius:2px;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(220,225,255,.95));transform:rotate(35deg);opacity:0;animation:shoot 1.2s ease-out forwards}
+  @keyframes shoot{0%{opacity:0;transform:rotate(35deg) translateX(0)}12%{opacity:1}100%{opacity:0;transform:rotate(35deg) translateX(-250px)}}
+  @keyframes tw{0%,100%{opacity:.35}50%{opacity:1}}
+
+  /* ---------- BOTONES DE COHETE ---------- */
+  .rk{--c:var(--afternoon);position:relative;cursor:pointer;border:2px solid color-mix(in srgb,var(--c) 45%,#fff);
+    font-family:'Fredoka';font-weight:600;color:var(--ink);background:linear-gradient(180deg,#FFFFFF,#F0EAFB);
+    border-radius:16px;box-shadow:0 5px 0 color-mix(in srgb,var(--c) 55%,#7d70ad),0 12px 18px -10px rgba(20,8,50,.6),inset 0 1px 0 #fff;
+    transition:transform .09s, box-shadow .09s, filter .2s;-webkit-tap-highlight-color:transparent}
+  .rk:hover{filter:brightness(1.03)}
+  .rk:active{transform:translateY(4px);box-shadow:0 1px 0 color-mix(in srgb,var(--c) 55%,#7d70ad),inset 0 1px 0 #fff}
+  .rk:focus-visible{outline:3px solid var(--c);outline-offset:3px}
+
+  /* ---------- COCKPIT / HEADER (BANNER) ---------- */
+  .cockpit{position:relative;border-radius:26px;overflow:visible;min-height:236px;
+    background:linear-gradient(160deg,#342b70,#40348a 58%,#48379c);
+    border:2px solid rgba(190,170,245,.32);box-shadow:var(--shadow),inset 0 2px 0 rgba(255,255,255,.16)}
+  .ck-rivets{position:absolute;inset:9px;border:1.5px dashed rgba(255,255,255,.12);border-radius:18px;pointer-events:none;z-index:1}
+  .isa-col{position:absolute;left:2px;bottom:0;z-index:3;pointer-events:none}
+  .isa-full{display:block;width:156px;height:auto;filter:drop-shadow(0 12px 16px rgba(0,0,0,.42))}
+  .ck-body{position:relative;z-index:2;padding:13px 13px 12px 150px}
+  .ck-titlebar{display:flex;align-items:center;gap:8px}
+  .ck-id{min-width:0;flex:1}
+  .ck-kick{font-family:'Orbitron';font-weight:700;font-size:.52rem;letter-spacing:1.4px;color:#C6B7F4;display:block}
+  .ck-ship{font-family:'Fredoka';font-weight:700;font-size:1.5rem;line-height:1;color:#fff;cursor:text;outline:none;border-radius:8px;padding:0 4px;display:inline-block;text-shadow:0 2px 12px rgba(150,120,250,.5);transition:background .2s}
+  .ck-ship:hover,.ck-ship:focus{background:rgba(255,255,255,.16)}
+  .ck-lights{display:inline-flex;gap:6px;flex:0 0 auto}
+  .ck-lights i{width:9px;height:9px;border-radius:50%}
+  .ck-lights i:nth-child(1){background:#3ee07f;box-shadow:0 0 7px #3ee07f;animation:blink 1.4s infinite}
+  .ck-lights i:nth-child(2){background:#FFC93C;box-shadow:0 0 7px #FFC93C;animation:blink 1.9s infinite}
+  .ck-lights i:nth-child(3){background:#7FBEF5;box-shadow:0 0 7px #7FBEF5;animation:blink 2.4s infinite}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.22}}
+  .ck-displays{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+  .ck-screen{position:relative;flex:1 1 140px;min-width:0;border-radius:14px;background:radial-gradient(120% 120% at 50% 35%,#20164f,#0E0930);border:2px solid rgba(255,255,255,.14);box-shadow:inset 0 2px 12px rgba(0,0,0,.6);padding:10px;text-align:center;overflow:hidden}
+  .ck-screen::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.05) 0 2px,transparent 2px 4px);pointer-events:none}
+  .ck-time{font-family:'Orbitron',monospace;font-weight:700;font-size:clamp(1.6rem,7.5vw,2.3rem);color:#7CF0FF;text-shadow:0 0 16px rgba(90,220,255,.7);letter-spacing:1px;display:inline-flex;align-items:baseline;gap:5px;justify-content:center}
+  .ck-sec{font-size:.42em;color:#FFCE6B;text-shadow:0 0 10px rgba(255,200,90,.6);font-weight:700}
+  .ck-ap{font-size:.34em;color:rgba(255,255,255,.72);font-family:'Fredoka';font-weight:600;letter-spacing:1px}
+  .ck-date{margin-top:3px;font-family:'Fredoka';font-weight:500;font-size:.72rem;color:rgba(255,255,255,.78)}
+  .starchart{position:relative;flex:0 1 80px;min-width:72px;border-radius:14px;background:radial-gradient(120% 120% at 60% 30%,#241657,#0E0930);border:2px solid rgba(255,255,255,.14);box-shadow:inset 0 2px 12px rgba(0,0,0,.55);padding:6px;overflow:hidden}
+  .starchart svg{width:100%;height:54px;display:block}
+  .sc-lbl{position:absolute;left:7px;bottom:5px;font-family:'Orbitron';font-weight:700;font-size:.5rem;letter-spacing:1.2px;color:#D6C4FF}
+  .sc-date{position:absolute;right:7px;bottom:5px;font-family:'Fredoka';font-weight:500;font-size:.5rem;color:rgba(255,255,255,.55)}
+  .cst-line{stroke:rgba(190,200,255,.45);stroke-width:1;fill:none}
+  .cst-star{fill:#fff}.cst-star.big{filter:drop-shadow(0 0 4px rgba(190,205,255,.95))}
+  .cst-tw{animation:tw 3.5s ease-in-out infinite}
+  .ck-gauges{display:flex;align-items:center;gap:10px;margin-top:11px}
+  .gauge{flex:1;min-width:0}
+  .g-lbl{font-family:'Orbitron';font-weight:700;font-size:.52rem;letter-spacing:1.4px;color:#C6B7F4;display:block;margin-bottom:4px}
+  .g-bar{height:13px;border-radius:99px;background:rgba(0,0,0,.3);overflow:hidden;box-shadow:inset 0 1px 3px rgba(0,0,0,.5)}
+  .g-bar i{display:block;height:100%;width:0%;border-radius:99px;background:linear-gradient(90deg,#3FD0BE,#7CF0FF);box-shadow:0 0 12px rgba(90,220,255,.6);transition:width .6s cubic-bezier(.34,1.4,.6,1)}
+  .g-stars{flex:0 0 auto;font-family:'Fredoka';font-weight:700;font-size:.95rem;color:#FFC93C;display:flex;align-items:center;gap:4px}
+  .ck-controls{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+  .ck-controls .rk{flex:1 1 118px;padding:11px;font-size:.88rem;display:flex;align-items:center;justify-content:center;gap:7px}
+  #remindBtn{--c:#35B9AC}
+  #remindBtn.on{--c:#2fa07f;background:linear-gradient(180deg,#EAFFF3,#CFF7E1)}
+  #reset{--c:#A98BE8}
+  .ck-btn-ico{font-size:1rem}
+  .ck-deco{display:flex;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap}
+  .ck-deco .sw{width:26px;height:14px;border-radius:99px;background:rgba(0,0,0,.3);position:relative;border:1px solid rgba(255,255,255,.16)}
+  .ck-deco .sw::after{content:"";position:absolute;top:1px;left:1px;width:10px;height:10px;border-radius:50%;background:#8f81c4}
+  .ck-deco .sw.on::after{left:auto;right:1px;background:#3ee07f;box-shadow:0 0 6px #3ee07f}
+  .ck-deco .dial{width:16px;height:16px;border-radius:50%;background:conic-gradient(#7FBEF5 0 40%,rgba(0,0,0,.3) 0);border:1px solid rgba(255,255,255,.18)}
+  .ck-deco .tag{font-family:'Orbitron';font-weight:600;font-size:.52rem;letter-spacing:1px;color:#CFC2F2;background:rgba(0,0,0,.26);border:1px solid rgba(255,255,255,.14);padding:3px 7px;border-radius:6px}
+  .ck-deco .tag.r{margin-left:auto}
+
+  /* ---------- SELECTOR DE DÍA ---------- */
+  .dayselect{display:flex;gap:6px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+  .daychip{font-family:'Fredoka';font-weight:600;font-size:.82rem;color:#D6C9F5;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.16);border-radius:13px;padding:7px 12px;cursor:pointer;transition:transform .12s,background .2s,color .2s;position:relative;-webkit-tap-highlight-color:transparent}
+  .daychip:hover{background:rgba(255,255,255,.14)}
+  .daychip.today::after{content:"";position:absolute;top:4px;right:5px;width:5px;height:5px;border-radius:50%;background:#3ee07f;box-shadow:0 0 6px #3ee07f}
+  .daychip.active{background:linear-gradient(180deg,#fff,#EDE6FB);color:var(--ink);border-color:#fff;box-shadow:0 5px 14px -5px rgba(190,160,255,.85)}
+  .daychip:focus-visible{outline:3px solid #fff;outline-offset:2px}
+  .preview-note{margin:12px 2px 0;text-align:center;font-family:'Fredoka';font-weight:500;font-size:.82rem;color:#241a44;background:linear-gradient(180deg,#FFF4C9,#FFE79A);border:1.5px solid #F5D46B;border-radius:14px;padding:8px 12px;box-shadow:0 6px 16px -8px rgba(240,200,60,.7)}
+
+  /* ---------- RADAR / PISTA DE VUELO ---------- */
+  .flightpath{position:relative;height:88px;margin:14px 0 0;border-radius:20px;background:radial-gradient(130% 130% at 50% 20%,#241657,#0D0A2C);border:2px solid rgba(255,255,255,.4);box-shadow:var(--shadow),inset 0 2px 12px rgba(0,0,0,.5);overflow:hidden}
+  .fp-line{position:absolute;left:34px;right:34px;top:52%;height:4px;transform:translateY(-2px);background:rgba(180,165,235,.25);border-radius:99px}
+  .fp-fill{position:absolute;left:34px;top:52%;height:4px;transform:translateY(-2px);width:0;background:linear-gradient(90deg,var(--sunrise),var(--midday),var(--afternoon),var(--evening),var(--night));border-radius:99px;box-shadow:0 0 10px rgba(190,160,255,.6);transition:width .7s ease}
+  .fp-planets{position:absolute;inset:0;display:flex;align-items:center;justify-content:space-between;padding:0 16px}
+  .planet{width:40px;height:40px;border-radius:50%;border:3px solid var(--accent,#888);background:radial-gradient(circle at 36% 32%,#3a2c72,#170f3f);display:flex;align-items:center;justify-content:center;font-size:1.05rem;cursor:pointer;z-index:2;box-shadow:0 0 14px -2px var(--accent),inset 0 0 8px rgba(0,0,0,.5);transition:transform .25s, box-shadow .25s;flex:0 0 auto;padding:0}
+  .planet:hover{transform:scale(1.08)}
+  .planet:focus-visible{outline:3px solid #fff;outline-offset:2px}
+  .planet.active{transform:scale(1.16);box-shadow:0 0 18px 0 var(--accent),inset 0 0 8px rgba(0,0,0,.5)}
+  .planet.done{background:var(--accent);border-color:var(--accent)}
+  .planet.done .ico{display:none}
+  .planet.done::after{content:"✓";color:#fff;font-weight:800;font-size:1.05rem}
+  .planet.goal{cursor:default;border:3px solid #fff;background:radial-gradient(circle at 38% 34%,#FFFFFF,#E6DEFF 72%,#CDBEF7);box-shadow:0 0 22px -1px rgba(190,170,255,.9)}
+  .rocket{position:absolute;left:0;top:calc(52% - 26px);width:36px;height:50px;z-index:6;transition:left 2s cubic-bezier(.34,.05,.2,1);filter:drop-shadow(0 5px 7px rgba(0,0,0,.55));pointer-events:none}
+  .rocket svg{width:100%;height:100%;display:block;transform:rotate(-90deg)}
+  .rocket .flame{transform-origin:20px 6px;opacity:.5;transform:scaleY(.6)}
+  .rocket.flying .flame{animation:flame .11s ease-in-out infinite alternate;opacity:1}
+  .rocket.flying{animation:flyTrip 2s cubic-bezier(.45,0,.3,1) both}
+  @keyframes flame{0%{transform:scaleY(.9) scaleX(.9)}100%{transform:scaleY(1.9) scaleX(1.18)}}
+  @keyframes flyTrip{0%{transform:translateY(0) rotate(0) scale(1)}15%{transform:translateY(-14px) rotate(-8deg) scale(1.08)}50%{transform:translateY(-20px) rotate(0) scale(1.14)}85%{transform:translateY(-7px) rotate(7deg) scale(1.06)}93%{transform:translateY(0) rotate(0) scale(1.13)}100%{transform:translateY(0) rotate(0) scale(1)}}
+  .spark{position:absolute;z-index:5;pointer-events:none;font-size:.7rem;line-height:1;animation:sparkFade .9s ease-out forwards}
+  @keyframes sparkFade{0%{opacity:.95;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(-24px,var(--dy,8px)) scale(.35)}}
+
+  /* ---------- COPILOTO ---------- */
+  .pilotbot{display:flex;align-items:flex-end;gap:10px;margin:16px 2px 10px}
+  .robot{width:76px;height:auto;flex:0 0 auto;filter:drop-shadow(0 8px 12px rgba(20,8,50,.5));animation:float 3.4s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+  .bubble{position:relative;flex:1;background:linear-gradient(180deg,#FFFFFF,#F3EEFC);border:2px solid rgba(255,255,255,.8);border-radius:16px;padding:11px 14px;font-family:'Fredoka';font-weight:500;font-size:.95rem;color:var(--ink);box-shadow:var(--shadow)}
+  .bubble::before{content:"";position:absolute;left:-9px;bottom:16px;width:0;height:0;border:8px solid transparent;border-right-color:#FFFFFF}
+
+  /* ---------- ESTACIÓN EN PRIMER PLANO ---------- */
+  .scenes{position:relative}
+  .scene{display:none}
+  .scene.active{display:block;animation:sIn .45s cubic-bezier(.3,1.1,.5,1) both}
+  .scene.active.rev{animation:sInRev .45s cubic-bezier(.3,1.1,.5,1) both}
+  @keyframes sIn{0%{opacity:0;transform:translateX(34px) scale(.98)}100%{opacity:1;transform:none}}
+  @keyframes sInRev{0%{opacity:0;transform:translateX(-34px) scale(.98)}100%{opacity:1;transform:none}}
+
+  .card{position:relative;background:var(--panel);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border-radius:var(--radius);padding:18px;border:2px solid rgba(255,255,255,.7);box-shadow:var(--shadow),0 0 30px -16px var(--accent)}
+  .scene.ringing .card{animation:ring .7s cubic-bezier(.36,.07,.19,.97) 3}
+  @keyframes ring{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+
+  .st-topline{display:flex;align-items:center;gap:13px;margin-bottom:6px}
+  .st-planet{width:52px;height:52px;flex:0 0 auto;border-radius:50%;border:3px solid var(--accent);background:radial-gradient(circle at 36% 30%,#fff,color-mix(in srgb,var(--accent) 22%,#fff));display:flex;align-items:center;justify-content:center;font-size:1.5rem;box-shadow:0 0 18px -4px var(--accent),inset 0 -4px 8px rgba(120,90,200,.15)}
+  .time{display:inline-block;font-family:'Fredoka';font-weight:600;font-size:.72rem;color:#fff;background:var(--accent);padding:3px 11px;border-radius:99px;box-shadow:0 0 12px -3px var(--accent)}
+  .st-topline h2{font-family:'Fredoka';font-weight:700;font-size:1.4rem;color:var(--ink);line-height:1.08;margin-top:5px}
+
+  .acts{margin-top:14px;display:flex;flex-direction:column;gap:11px}
+  .rk-task{display:flex;align-items:center;gap:13px;width:100%;text-align:left;padding:15px 15px;--c:var(--accent)}
+  .rk-task .em{font-size:1.7rem;flex:0 0 auto;filter:drop-shadow(0 2px 3px rgba(20,8,50,.2))}
+  .rk-task .lab{flex:1;font-family:'Fredoka';font-weight:600;font-size:1.12rem;color:var(--ink);line-height:1.15}
+  .rk-led{flex:0 0 auto;width:26px;height:26px;border-radius:50%;background:#D9CFEC;box-shadow:inset 0 2px 3px rgba(80,50,140,.4),inset 0 -1px 1px #fff;position:relative;transition:background .25s, box-shadow .25s}
+  .rk-led::after{content:"";position:absolute;inset:6px;border-radius:50%;background:rgba(255,255,255,.3)}
+  .rk-task.checked .rk-led{background:radial-gradient(circle at 35% 30%,#CFFFE0,#25D06B);box-shadow:0 0 14px 1px #34DE7C,inset 0 0 3px #fff}
+  .rk-task.checked .rk-led::after{content:"✓";inset:0;display:flex;align-items:center;justify-content:center;background:none;color:#fff;font-family:'Fredoka';font-weight:800;font-size:1rem}
+  .rk-task.checked{background:linear-gradient(180deg,#F4FFF8,#E4FBEC);border-color:#8fe6b3}
+  .rk-task.checked .lab{color:#2f7d52}
+
+  .fuel{display:flex;align-items:center;gap:9px;margin-top:14px;padding:10px 13px;border-radius:15px;background:color-mix(in srgb,var(--accent) 12%,#fff);border:2px solid color-mix(in srgb,var(--accent) 30%,#fff)}
+  .fuel.full{border-color:var(--accent);box-shadow:0 0 16px -6px var(--accent)}
+  .fuel-ico{font-size:1.15rem}
+  .fuel-cells{flex:1;display:flex;gap:5px}
+  .fuel-cells i{flex:1;height:12px;border-radius:6px;background:#E6DEF6;box-shadow:inset 0 1px 2px rgba(80,50,140,.25);transition:background .35s, box-shadow .35s}
+  .fuel-cells i.on{background:linear-gradient(90deg,color-mix(in srgb,var(--accent) 55%,#fff),var(--accent));box-shadow:0 0 10px -1px var(--accent)}
+  .fuel-label{font-family:'Fredoka';font-weight:600;font-size:.78rem;color:var(--ink-soft);flex:0 0 auto;min-width:76px;text-align:right}
+  .fuel.full .fuel-label{color:color-mix(in srgb,var(--accent) 70%,#000)}
+
+  .st-foot{margin-top:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .rk-time{display:inline-flex;align-items:center;gap:8px;padding:9px 13px;--c:var(--accent);font-size:.86rem;color:var(--ink)}
+  .rk-time input[type=time]{font-family:'Orbitron';font-weight:700;font-size:.9rem;color:var(--ink);border:none;background:transparent;cursor:pointer;width:78px}
+  .rk-time input[type=time]:focus-visible{outline:none}
+  .rk-time .clear{border:none;background:none;cursor:pointer;color:var(--ink-soft);font-size:1rem;line-height:1;padding:0 2px}
+
+  /* ---------- NAVEGACIÓN ---------- */
+  .nav{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:16px}
+  .rk-nav{width:52px;height:52px;border-radius:50%;--c:var(--afternoon);font-size:1.5rem;color:var(--ink);display:flex;align-items:center;justify-content:center;padding:0}
+  .rk-nav[disabled]{opacity:.4;pointer-events:none}
+  .pager{display:flex;gap:8px}
+  .pager b{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.28);transition:.25s;cursor:pointer}
+  .pager b.active{background:#E4D6FF;transform:scale(1.4);box-shadow:0 0 9px rgba(210,190,255,.8)}
+
+  /* ---------- ALARMA ---------- */
+  .alarm{position:fixed;left:50%;bottom:24px;transform:translate(-50%,150%);z-index:120;width:calc(100% - 32px);max-width:420px;background:linear-gradient(180deg,#FFFFFF,#F1EBFC);border-radius:22px;padding:16px;box-shadow:0 18px 44px -14px rgba(20,8,50,.7),0 0 30px -8px var(--accent,var(--evening));border:2px solid var(--accent,var(--evening));display:flex;align-items:center;gap:13px;transition:transform .5s cubic-bezier(.34,1.4,.5,1)}
+  .alarm.show{transform:translate(-50%,0)}
+  .alarm .a-emoji{font-size:2.5rem;flex:0 0 auto;animation:float 1.4s ease-in-out infinite}
+  .alarm .a-txt{flex:1;min-width:0}
+  .alarm .a-txt b{font-family:'Fredoka';font-weight:700;font-size:1.12rem;color:var(--ink);display:block}
+  .alarm .a-txt span{font-size:.9rem;color:var(--ink-soft)}
+  .alarm .a-ok{flex:0 0 auto;--c:var(--accent,var(--evening));padding:11px 16px;font-size:.92rem}
+
+  /* ---------- FINAL ---------- */
+  .finale{margin-top:14px;text-align:center;border-radius:var(--radius);background:linear-gradient(160deg,#2A1C63,#3E2E8E);border:2px solid rgba(255,255,255,.4);box-shadow:var(--shadow),0 0 40px -12px rgba(170,130,250,.7);opacity:0;transform:scale(.92);pointer-events:none;height:0;padding:0;overflow:hidden;transition:opacity .5s, transform .5s}
+  .finale.show{opacity:1;transform:scale(1);pointer-events:auto;height:auto;padding:24px 20px}
+  .finale img{width:190px;max-width:64%;border-radius:18px;-webkit-mask-image:radial-gradient(circle at 50% 42%,#000 58%,transparent 82%);mask-image:radial-gradient(circle at 50% 42%,#000 58%,transparent 82%)}
+  .finale h2{font-family:'Fredoka';font-weight:700;font-size:1.5rem;color:#fff;margin-top:2px}
+  .finale p{color:#DCCFF6;margin-top:4px}
+
+  .confetti{position:fixed;top:-12px;width:11px;height:16px;z-index:99;pointer-events:none;border-radius:2px}
+  @keyframes fall{to{transform:translateY(105vh) rotate(600deg);opacity:.9}}
+
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+  <div class="cosmos" id="cosmos" aria-hidden="true"></div>
+
+  <div class="wrap">
+    <header class="cockpit">
+      <div class="ck-rivets"></div>
+      <div class="isa-col"><img class="isa-full" src="assets/isabella-header.png" alt="Isabella astronauta"></div>
+      <div class="ck-body">
+        <div class="ck-titlebar">
+          <div class="ck-id"><span class="ck-kick" id="kicker">PILOTO · BITÁCORA</span><span class="ck-ship" id="name" contenteditable="true" spellcheck="false" aria-label="Nombre">Isabella</span></div>
+          <span class="ck-lights" aria-hidden="true"><i></i><i></i><i></i></span>
+        </div>
+        <div class="ck-displays">
+          <div class="ck-screen">
+            <span class="ck-time"><span id="clockTime">--:--</span><span class="ck-sec" id="clockSec">--</span><span class="ck-ap" id="clockAp">--</span></span>
+            <div class="ck-date" id="clockDate">&mdash;</div>
+          </div>
+          <div class="starchart" aria-label="Constelacion de Aries">
+            <svg viewBox="0 0 100 58" xmlns="http://www.w3.org/2000/svg">
+              <polyline class="cst-line" points="15,46 25,40 63,24 88,15"/>
+              <circle class="cst-star cst-tw" cx="15" cy="46" r="1.6"/>
+              <circle class="cst-star cst-tw" cx="25" cy="40" r="1.9" style="animation-delay:.6s"/>
+              <circle class="cst-star big cst-tw" cx="63" cy="24" r="2.8" style="animation-delay:1.1s"/>
+              <circle class="cst-star cst-tw" cx="88" cy="15" r="1.8" style="animation-delay:1.6s"/>
+            </svg>
+            <span class="sc-lbl">&#9800; ARIES</span><span class="sc-date">9 ABR</span>
+          </div>
+        </div>
+        <div class="ck-gauges">
+          <div class="gauge"><span class="g-lbl">PROGRESO DE MISION</span><div class="g-bar"><i id="progFill"></i></div></div>
+          <span class="g-stars"><span id="starCount">0</span>/<span id="starTotal">5</span> &#11088;</span>
+        </div>
+        <div class="ck-controls">
+          <button class="rk" id="remindBtn"><span class="ck-btn-ico">&#128276;</span> <span id="remindState">Recordatorios</span></button>
+          <button class="rk" id="reset"><span class="ck-btn-ico">&#8635;</span> Nueva misi&oacute;n</button>
+        </div>
+        <div class="ck-deco" aria-hidden="true">
+          <span class="sw on"></span><span class="sw"></span><span class="sw on"></span>
+          <span class="dial"></span><span class="dial"></span>
+          <span class="tag r">O&#8322; 100%</span><span class="tag">VEL 7.8 km/s</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- SELECTOR DE DÍA -->
+    <div class="dayselect" id="dayselect" role="tablist" aria-label="Día de la rutina"></div>
+    <div class="preview-note" id="previewNote" hidden>👀 Vista previa — el progreso solo se guarda el día de hoy</div>
+
+    <!-- RADAR / PISTA -->
+    <div class="flightpath" id="flightpath">
+      <div class="fp-line"></div><div class="fp-fill" id="fpFill"></div>
+      <div class="fp-planets" id="fpPlanets">
+        <div class="planet goal" id="goal" aria-hidden="true">🌛</div>
+      </div>
+      <div class="rocket" id="rocket" aria-hidden="true">
+        <svg viewBox="0 0 40 56" xmlns="http://www.w3.org/2000/svg">
+          <g class="flame"><path d="M20 2 C13 6 12 12 20 16 C28 12 27 6 20 2 Z" fill="#FF9E45"/><path d="M20 5 C16 8 16 11 20 14 C24 11 24 8 20 5 Z" fill="#FFD34D"/></g>
+          <g><path d="M9 30 L9 20 C9 18 11 17 12 19 L13 30 Z" fill="#C267C9"/><path d="M31 30 L31 20 C31 18 29 17 28 19 L27 30 Z" fill="#C267C9"/>
+          <rect x="12" y="14" width="16" height="26" rx="8" fill="#FFFFFF"/><rect x="12" y="14" width="16" height="26" rx="8" fill="none" stroke="#E7DFF2" stroke-width="1.5"/>
+          <path d="M12 40 L28 40 L20 54 Z" fill="#7FBEF5"/><circle cx="20" cy="25" r="5" fill="#3FD0BE"/><circle cx="20" cy="25" r="5" fill="none" stroke="#fff" stroke-width="1.6"/><circle cx="18.4" cy="23.4" r="1.4" fill="#fff" opacity=".85"/></g>
+        </svg>
+      </div>
+    </div>
+
+    <!-- COPILOTO -->
+    <div class="pilotbot">
+      <img class="robot" src="assets/robot-copiloto.png" alt="Robot copiloto">
+      <div class="bubble" id="botText">¡Hola, Isabella! Preparemos el despegue ✨</div>
+    </div>
+
+    <!-- ESTACIONES (SE GENERAN POR DÍA) -->
+    <div class="scenes" id="scenes"></div>
+
+    <div class="nav">
+      <button class="rk rk-nav" id="prev" aria-label="Estación anterior">‹</button>
+      <div class="pager" id="pager" aria-hidden="true"></div>
+      <button class="rk rk-nav" id="next" aria-label="Estación siguiente">›</button>
+    </div>
+
+    <div class="finale" id="finale">
+      <img src="assets/isabella-insignia.jpg" alt="Isabella astronauta">
+      <h2>¡Misión cumplida!</h2>
+      <p>Aterrizaste en la Luna de los Sueños. ¡A descansar, astronauta! 🌙</p>
+    </div>
+  </div>
+
+  <div class="alarm" id="alarm" role="alert">
+    <span class="a-emoji" id="alarmEmoji">🔔</span>
+    <div class="a-txt"><b id="alarmTitle">¡Es hora!</b><span id="alarmSub"></span></div>
+    <button class="rk a-ok" id="alarmOk">¡Ya voy!</button>
+  </div>
+
+<script>
+(() => {
+  'use strict';
+  const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const $=id=>document.getElementById(id);
+
+  /* ============================================================
+     DATOS DE LAS RUTINAS (data-driven)
+     ============================================================ */
+  const ROUTINES = {
+    escuela: {
+      kicker:'PILOTO · BITÁCORA ESCOLAR',
+      stations:[
+        {scene:'e-desp', emoji:'🌅', accent:'var(--sunrise)', time:'Al despertar', title:'Empiezo mi día',
+          bot:n=>`¡Buenos días, ${n}! A prepararnos para el viaje escolar 🚀`, alarm:'',
+          tasks:[{em:'🛏️',lab:'Hacer mi cama'},{em:'🪥',lab:'Lavarme los dientes'},{em:'👕',lab:'Ponerme el uniforme'},{em:'🥣',lab:'Desayunar rico'}]},
+        {scene:'e-salir', emoji:'🎒', accent:'var(--midday)', time:'Antes de salir', title:'Lista para la escuela',
+          bot:n=>`¡Todo listo para despegar a la escuela! 🎒`, alarm:'',
+          tasks:[{em:'🎒',lab:'Preparar la mochila'},{em:'🥪',lab:'Alistar mi lonchera'},{em:'🚌',lab:'Irme a la escuela'}]},
+        {scene:'e-volver', emoji:'🏠', accent:'#7FD0F5', time:'Al volver · 4:00 pm', title:'Ya llegué a casa',
+          bot:n=>`¡Bienvenida de vuelta, ${n}! ¿Cómo estuvo tu día? 🏠`, alarm:'',
+          tasks:[{em:'🎒',lab:'Guardar la mochila'},{em:'🧼',lab:'Lavarme las manos'},{em:'🍎',lab:'Merendar'}]},
+        {scene:'e-tarea', emoji:'📖', accent:'var(--afternoon)', time:'Después de merendar', title:'Hora de la tarea',
+          bot:n=>`¡A recargar el cerebro con la tarea! 📖`, alarm:'',
+          tasks:[{em:'✏️',lab:'Hacer mi tarea'},{em:'📒',lab:'Revisar la agenda'}]},
+        {scene:'e-libre', emoji:'🎨', accent:'#FFC93C', time:'Hasta las 6:00 pm', title:'Tiempo libre',
+          bot:n=>`¡Te lo ganaste! A jugar un ratito 🎨`, alarm:'',
+          tasks:[{em:'🧸',lab:'Jugar y divertirme'}]},
+        {scene:'e-bano', emoji:'🛁', accent:'var(--evening)', time:'6:00 pm', title:'Hora del baño',
+          bot:n=>`¡Hora de las burbujas! 🫧`, alarm:'18:00',
+          tasks:[{em:'🫧',lab:'Darme un baño rico'}]},
+        {scene:'e-dormir', emoji:'🌙', accent:'var(--night)', time:'7:30 pm', title:'Lista para dormir',
+          bot:n=>`Mañana hay escuela, a soñar bonito 🌙`, alarm:'19:30',
+          tasks:[{em:'👘',lab:'Ponerme la pijama'},{em:'🪥',lab:'Lavarme los dientes'},{em:'📖',lab:'Leer un cuento'}]}
+      ]
+    },
+    sabado: {
+      kicker:'PILOTO · BITÁCORA SÁBADO',
+      stations:[
+        {scene:'s-desp', emoji:'🌅', accent:'var(--sunrise)', time:'Al despertar', title:'¡Buenos días!',
+          bot:n=>`¡Feliz sábado, ${n}! Hoy es día de aventuras ✨`, alarm:'',
+          tasks:[{em:'🛏️',lab:'Hacer mi cama'},{em:'🪥',lab:'Lavarme los dientes'},{em:'👗',lab:'Vestirme'}]},
+        {scene:'s-manana', emoji:'🥣', accent:'var(--midday)', time:'En la mañana', title:'A tomar energía',
+          bot:n=>`¡Un desayuno rico para tener mucha energía! 🥣`, alarm:'',
+          tasks:[{em:'🥣',lab:'Desayunar rico'}]},
+        {scene:'s-orden', emoji:'🧹', accent:'var(--afternoon)', time:'Antes de jugar', title:'Ordeno mi cuarto',
+          bot:n=>`Dejemos la nave ordenada y brillante 🧹`, alarm:'',
+          tasks:[{em:'🧸',lab:'Guardar mis juguetes'},{em:'👚',lab:'Guardar mi ropa'}]},
+        {scene:'s-libre', emoji:'🎨', accent:'#FFC93C', time:'Tarde libre', title:'A divertirme',
+          bot:n=>`¡Tarde libre! A jugar y explorar 🎨`, alarm:'',
+          tasks:[{em:'🧸',lab:'Jugar y divertirme'}]},
+        {scene:'s-bano', emoji:'🛁', accent:'var(--evening)', time:'En la tarde', title:'Hora del baño',
+          bot:n=>`¡Hora de las burbujas! 🫧`, alarm:'',
+          tasks:[{em:'🫧',lab:'Darme un baño rico'}]},
+        {scene:'s-dormir', emoji:'🌙', accent:'var(--night)', time:'En la noche', title:'Lista para dormir',
+          bot:n=>`Otro gran día cumplido, a soñar bonito 🌙`, alarm:'',
+          tasks:[{em:'👘',lab:'Ponerme la pijama'},{em:'🪥',lab:'Lavarme los dientes'},{em:'📖',lab:'Leer un cuento'}]}
+      ]
+    },
+    domingo: {
+      kicker:'PILOTO · BITÁCORA DOMINGO',
+      stations:[
+        {scene:'d-desp', emoji:'🌅', accent:'var(--sunrise)', time:'Al despertar', title:'Empiezo mi día',
+          bot:n=>`¡Hola, ${n}! Preparemos el despegue ✨`, alarm:'',
+          tasks:[{em:'🛏️',lab:'Hacer mi cama'},{em:'🪥',lab:'Lavarme los dientes'},{em:'👗',lab:'Vestirme'}]},
+        {scene:'d-esc', emoji:'📚', accent:'var(--midday)', time:'Después de comer', title:'Preparo mi escuela',
+          bot:n=>`¡A dejar la mochila lista para la semana! 🎒`, alarm:'',
+          tasks:[{em:'🎒',lab:'Preparar la mochila'},{em:'👕',lab:'Alistar el uniforme'},{em:'📖',lab:'Revisar la agenda de la semana'}]},
+        {scene:'d-tarde', emoji:'🎨', accent:'var(--afternoon)', time:'Hasta las 6:00 pm', title:'Tarde libre',
+          bot:n=>`¡Tiempo libre! Recarguemos energía 🎨`, alarm:'',
+          tasks:[{em:'🧸',lab:'Jugar y divertirme hasta las 6'}]},
+        {scene:'d-bano', emoji:'🛁', accent:'var(--evening)', time:'6:00 pm', title:'Hora del baño',
+          bot:n=>`¡Hora de las burbujas! 🫧`, alarm:'18:00',
+          tasks:[{em:'🫧',lab:'Darme un baño rico'}]},
+        {scene:'d-dormir', emoji:'🌙', accent:'var(--night)', time:'7:30 pm', title:'Lista para dormir',
+          bot:n=>`Últimas tareas y a soñar bonito 🌙`, alarm:'19:30',
+          tasks:[{em:'👘',lab:'Ponerme la pijama'},{em:'🪥',lab:'Lavarme los dientes'},{em:'📖',lab:'Leer un cuento'}]}
+      ]
+    }
+  };
+  // getDay(): 0=Dom,1=Lun,...,6=Sáb
+  const DAY_TO_ROUTINE = ['domingo','escuela','escuela','escuela','escuela','escuela','sabado'];
+  const CHIP_ORDER = [1,2,3,4,5,6,0];
+  const CHIP_LABEL = {0:'Dom',1:'Lun',2:'Mar',3:'Mié',4:'Jue',5:'Vie',6:'Sáb'};
+
+  /* ============================================================
+     PERSISTENCIA (por día)
+     ============================================================ */
+  const LS_KEY='rutinaIsabella_v2';
+  function todayStr(){const n=new Date();return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');}
+  function loadState(){try{return JSON.parse(localStorage.getItem(LS_KEY))||{};}catch(e){return {};}}
+  function saveState(st){try{localStorage.setItem(LS_KEY,JSON.stringify(st));}catch(e){}}
+  let state = loadState();
+  if(!state || typeof state!=='object') state={};
+  if(state.date!==todayStr()){ // día nuevo: se reinicia el progreso (el nombre se conserva)
+    state = {date:todayStr(), name:(state.name||'Isabella'), checks:{}, alarms:{}};
+    saveState(state);
+  }
+  state.checks = state.checks||{}; state.alarms = state.alarms||{}; state.name = state.name||'Isabella';
+
+  /* ============================================================
+     REFERENCIAS Y ESTADO EN VIVO
+     ============================================================ */
+  const progFill=$('progFill'),starCount=$('starCount'),starTotal=$('starTotal'),fpFill=$('fpFill'),flightpath=$('flightpath');
+  const rocket=$('rocket'),goal=$('goal'),finale=$('finale'),nameEl=$('name'),botText=$('botText'),pager=$('pager');
+  const prevBtn=$('prev'),nextBtn=$('next'),kickerEl=$('kicker'),scenesEl=$('scenes'),fpPlanets=$('fpPlanets');
+  const dayselect=$('dayselect'),previewNote=$('previewNote');
+
+  const todayDow = new Date().getDay();
+  let selectedDow = todayDow;
+  let routineKey = DAY_TO_ROUTINE[selectedDow];
+  let tracking = true;         // ¿el día visible es hoy? (solo entonces se guarda)
+  let stations=[], scenes=[], planets=[], pagerDots=[];
+  let TOTAL_STARS=0, TOTAL_STEPS=0;
+  let prevIdx=null, flyT=null, viewIdx=0;
+  const firedToday=new Set();
+
+  const getName=()=>{const t=nameEl.textContent.trim();return t||'Isabella';};
+  nameEl.textContent = state.name;
+
+  /* ---------- cosmos (una vez) ---------- */
+  const cosmos=$('cosmos');
+  for(let i=0;i<90;i++){const s=document.createElement('span');s.className='st';const z=(Math.random()*2+1).toFixed(1);s.style.width=z+'px';s.style.height=z+'px';s.style.left=(Math.random()*100).toFixed(2)+'%';s.style.top=(Math.random()*100).toFixed(2)+'%';s.style.animationDelay=(Math.random()*4).toFixed(2)+'s';s.style.opacity=(Math.random()*.5+.4).toFixed(2);cosmos.appendChild(s);}
+  ['⭐','⭐','⭐','⭐','⭐','⭐'].forEach(c=>{const y=document.createElement('span');y.className='ys';y.textContent=c;y.style.left=(Math.random()*92+3)+'%';y.style.top=(Math.random()*88+3)+'%';y.style.animationDelay=(Math.random()*5)+'s';cosmos.appendChild(y);});
+  if(!reduce){const shoot=()=>{const n=1+(Math.random()<.35?1:0);for(let k=0;k<n;k++){const sh=document.createElement('span');sh.className='shoot';sh.style.top=(Math.random()*55)+'%';sh.style.left=(Math.random()*60+25)+'%';sh.style.animationDelay=(k*.25)+'s';cosmos.appendChild(sh);setTimeout(()=>sh.remove(),1700);}setTimeout(shoot,2600+Math.random()*3600);};setTimeout(shoot,2000);}
+
+  /* ---------- selector de día ---------- */
+  function buildDaySelect(){
+    dayselect.innerHTML='';
+    CHIP_ORDER.forEach(dow=>{
+      const b=document.createElement('button');
+      b.className='daychip'+(dow===todayDow?' today':'')+(dow===selectedDow?' active':'');
+      b.textContent=CHIP_LABEL[dow];
+      b.setAttribute('role','tab');
+      b.setAttribute('aria-selected',dow===selectedDow?'true':'false');
+      b.addEventListener('click',()=>selectDay(dow));
+      dayselect.appendChild(b);
+    });
+  }
+  function selectDay(dow){
+    selectedDow=dow;
+    routineKey=DAY_TO_ROUTINE[dow];
+    tracking=(dow===todayDow);
+    firedToday.clear();
+    buildDaySelect();
+    previewNote.hidden = tracking;
+    renderRoutine();
+  }
+
+  /* ============================================================
+     RENDER DE LA RUTINA SELECCIONADA
+     ============================================================ */
+  function renderRoutine(){
+    const R=ROUTINES[routineKey];
+    stations=R.stations;
+    kickerEl.textContent=R.kicker;
+
+    // planetas
+    [...fpPlanets.querySelectorAll('.planet:not(.goal)')].forEach(p=>p.remove());
+    stations.forEach((s,i)=>{
+      const b=document.createElement('button');
+      b.className='planet';b.dataset.idx=i;b.setAttribute('aria-label','Estación '+(i+1));
+      b.style.setProperty('--accent',s.accent);
+      b.innerHTML='<span class="ico">'+s.emoji+'</span>';
+      fpPlanets.insertBefore(b,goal);
+    });
+
+    // estaciones (scenes)
+    scenesEl.innerHTML='';
+    stations.forEach((s,i)=>{
+      const sec=document.createElement('section');
+      sec.className='scene';sec.dataset.scene=s.scene;sec.dataset.emoji=s.emoji;
+      sec.style.setProperty('--accent',s.accent);
+      const acts=s.tasks.map((t,ti)=>`<button class="rk rk-task" data-task data-i="${ti}"><span class="em">${t.em}</span><span class="lab">${t.lab}</span><span class="rk-led"></span></button>`).join('');
+      sec.innerHTML=
+        `<div class="card">
+          <div class="st-topline"><span class="st-planet">${s.emoji}</span><div><span class="time">Estación ${i+1} · ${s.time}</span><h2>${s.title}</h2></div></div>
+          <div class="acts">${acts}</div>
+          <div class="fuel" aria-hidden="true"><span class="fuel-ico">⛽</span><div class="fuel-cells" data-cells="${s.tasks.length}"></div><span class="fuel-label">Combustible</span></div>
+          <div class="st-foot"><span class="rk rk-time">🔔 <input type="time" data-alarm aria-label="Hora"><button class="clear" data-clear title="Quitar">✕</button></span></div>
+        </div>`;
+      scenesEl.appendChild(sec);
+    });
+
+    // re-consultar arrays
+    scenes=[...scenesEl.querySelectorAll('.scene')];
+    planets=[...fpPlanets.querySelectorAll('.planet:not(.goal)')];
+    TOTAL_STARS=scenes.length;
+    TOTAL_STEPS=stations.reduce((n,s)=>n+s.tasks.length,0);
+    starTotal.textContent=TOTAL_STARS;
+
+    // celdas de combustible
+    scenesEl.querySelectorAll('.fuel-cells').forEach(fc=>{const n=+fc.dataset.cells||1;fc.innerHTML='';for(let i=0;i<n;i++)fc.appendChild(document.createElement('i'));});
+
+    // pager
+    pager.innerHTML='';
+    scenes.forEach((_,i)=>{const b=document.createElement('b');b.addEventListener('click',()=>showStation(i));pager.appendChild(b);});
+    pagerDots=[...pager.children];
+
+    // aplicar estado guardado + alarmas por defecto
+    scenes.forEach((sec,i)=>{
+      const st=stations[i];
+      const alarmInp=sec.querySelector('[data-alarm]');
+      // alarma: override guardado (si es hoy) o valor por defecto de la rutina
+      let av=st.alarm||'';
+      if(tracking && state.alarms[st.scene]!==undefined) av=state.alarms[st.scene];
+      alarmInp.value=av;
+      // tareas marcadas (solo si es hoy)
+      if(tracking){
+        sec.querySelectorAll('[data-task]').forEach((t,ti)=>{
+          if(state.checks[st.scene+'#'+ti]) t.classList.add('checked');
+        });
+      }
+    });
+
+    prevIdx=null;
+    refresh();
+    showStation(0,-1);
+    setTimeout(()=>positionRocket(true),40);
+  }
+
+  /* ============================================================
+     LÓGICA DE PROGRESO
+     ============================================================ */
+  const sceneDone=s=>{const t=[...s.querySelectorAll('[data-task]')];return t.length>0&&t.every(x=>x.classList.contains('checked'));};
+  const sceneProg=s=>{const t=[...s.querySelectorAll('[data-task]')];return{done:t.filter(x=>x.classList.contains('checked')).length,total:t.length};};
+  const stepsDone=()=>scenes.reduce((n,s)=>n+sceneProg(s).done,0);
+  const currentIndex=()=>{for(let i=0;i<scenes.length;i++)if(!sceneDone(scenes[i]))return i;return scenes.length;};
+
+  function positionRocket(instant){
+    if(!planets.length)return;
+    const idx=currentIndex();const target=idx>=scenes.length?goal:planets[idx];
+    const f=flightpath.getBoundingClientRect(),p=target.getBoundingClientRect();
+    const left=p.left-f.left+p.width/2-rocket.offsetWidth/2;
+    if(instant){rocket.style.transition='none';rocket.style.left=left+'px';void rocket.offsetWidth;rocket.style.transition='';}
+    else rocket.style.left=left+'px';
+  }
+  function setActive(i){planets.forEach((p,k)=>p.classList.toggle('active',k===i));pagerDots.forEach((d,k)=>d.classList.toggle('active',k===i));}
+
+  function showStation(i,dir){
+    if(i<0||i>=scenes.length)return;
+    dir = dir!==undefined ? dir : (i>viewIdx?1:-1);
+    viewIdx=i;
+    scenes.forEach((s,k)=>{s.classList.remove('active','rev');if(k===i){s.classList.add('active');if(dir<0)s.classList.add('rev');}});
+    setActive(i);
+    botText.textContent=stations[i].bot(getName());
+    prevBtn.disabled=i===0;nextBtn.disabled=i===scenes.length-1;
+  }
+
+  function refresh(){
+    scenes.forEach((s,i)=>{
+      planets[i].classList.toggle('done',sceneDone(s));
+      const fuel=s.querySelector('.fuel');
+      if(fuel){const cells=[...fuel.querySelectorAll('.fuel-cells i')];const p=sceneProg(s);cells.forEach((c,k)=>c.classList.toggle('on',k<p.done));const full=p.done>=p.total;fuel.classList.toggle('full',full);fuel.querySelector('.fuel-label').textContent=full?'¡Despegue! 🚀':'Combustible';}
+    });
+    const stars=scenes.filter(sceneDone).length,steps=stepsDone(),pct=TOTAL_STEPS?steps/TOTAL_STEPS:0;
+    progFill.style.width=(pct*100)+'%';
+    fpFill.style.width=Math.max(0,pct*(flightpath.clientWidth-70))+'px';
+    starCount.textContent=stars;
+    const idx=currentIndex(),changed=prevIdx!==null&&idx!==prevIdx;
+    if(changed){
+      rocket.classList.remove('flying');void rocket.offsetWidth;rocket.classList.add('flying');
+      launchSparks();clearTimeout(flyT);
+      flyT=setTimeout(()=>{rocket.classList.remove('flying');pulseArrival();},2050);
+      if(idx<scenes.length) setTimeout(()=>showStation(idx,1),750);
+    }
+    prevIdx=idx;positionRocket(!changed);
+    if(TOTAL_STARS>0 && stars===TOTAL_STARS){if(!finale.classList.contains('show'))setTimeout(()=>{finale.classList.add('show');celebrate();},changed?1900:0);}
+    else finale.classList.remove('show');
+  }
+
+  /* ---------- persistir cambios ---------- */
+  function persistChecks(){
+    if(!tracking)return;
+    state.date=todayStr();
+    state.checks={};
+    scenes.forEach((sec,i)=>{
+      const key=stations[i].scene;
+      sec.querySelectorAll('[data-task]').forEach((t,ti)=>{if(t.classList.contains('checked'))state.checks[key+'#'+ti]=1;});
+    });
+    saveState(state);
+  }
+  function persistAlarm(sceneKey,val){
+    if(!tracking)return;
+    state.date=todayStr();
+    state.alarms[sceneKey]=val;
+    saveState(state);
+  }
+
+  /* ---------- delegación de eventos (una vez) ---------- */
+  scenesEl.addEventListener('click',e=>{
+    const clear=e.target.closest('[data-clear]');
+    if(clear){e.stopPropagation();const inp=clear.parentElement.querySelector('[data-alarm]');inp.value='';const sec=clear.closest('.scene');persistAlarm(sec.dataset.scene,'');firedToday.clear();return;}
+    const task=e.target.closest('[data-task]');
+    if(task){const nc=!task.classList.contains('checked');task.classList.toggle('checked',nc);if(nc){pop(task);blip();}persistChecks();refresh();}
+  });
+  scenesEl.addEventListener('change',e=>{
+    const al=e.target.closest('[data-alarm]');
+    if(al){const sec=al.closest('.scene');persistAlarm(sec.dataset.scene,al.value);firedToday.clear();}
+  });
+  fpPlanets.addEventListener('click',e=>{
+    const p=e.target.closest('.planet:not(.goal)');
+    if(p)showStation(+p.dataset.idx);
+  });
+
+  prevBtn.addEventListener('click',()=>showStation(viewIdx-1,-1));
+  nextBtn.addEventListener('click',()=>showStation(viewIdx+1,1));
+
+  $('reset').addEventListener('click',()=>{
+    scenes.forEach(s=>s.classList.remove('ringing'));
+    scenesEl.querySelectorAll('[data-task]').forEach(t=>t.classList.remove('checked'));
+    firedToday.clear();prevIdx=null;persistChecks();refresh();showStation(0,-1);
+    window.scrollTo({top:0,behavior:reduce?'auto':'smooth'});
+  });
+
+  /* ---------- nombre ---------- */
+  nameEl.addEventListener('focus',()=>{if(nameEl.textContent.trim()==='Isabella'){const r=document.createRange();r.selectNodeContents(nameEl);const s=window.getSelection();s.removeAllRanges();s.addRange(r);}});
+  nameEl.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();nameEl.blur();}});
+  nameEl.addEventListener('blur',()=>{if(nameEl.textContent.trim()==='')nameEl.textContent='Isabella';state.name=getName();saveState(state);botText.textContent=stations[viewIdx].bot(getName());});
+
+  /* ---------- efectos ---------- */
+  function pop(el){if(reduce)return;el.animate([{transform:'scale(1)'},{transform:'scale(1.03)'},{transform:'scale(1)'}],{duration:240,easing:'cubic-bezier(.34,1.6,.5,1)'});}
+  function launchSparks(){if(reduce)return;const start=performance.now();const k=['✨','⭐','💫','🔥','⭐','✨'];const iv=setInterval(()=>{if(performance.now()-start>1850){clearInterval(iv);return;}const r=rocket.getBoundingClientRect(),t=flightpath.getBoundingClientRect();const sp=document.createElement('span');sp.className='spark';sp.textContent=k[Math.floor(Math.random()*k.length)];sp.style.left=(r.left-t.left+4+(Math.random()*6-3))+'px';sp.style.top=(r.top-t.top+r.height/2-6+(Math.random()*6))+'px';sp.style.setProperty('--dy',(Math.random()*16-2)+'px');flightpath.appendChild(sp);setTimeout(()=>sp.remove(),950);},80);}
+  function pulseArrival(){if(reduce)return;const cur=currentIndex();const t=cur>=scenes.length?goal:planets[cur];if(t)t.animate([{transform:'scale(1)'},{transform:'scale(1.3)'},{transform:'scale(1.16)'}],{duration:420,easing:'cubic-bezier(.34,1.6,.5,1)'});}
+  function celebrate(){if(reduce)return;const cols=['#FF9EB0','#3FD0BE','#C79BF2','#7FBEF5','#FFD65C','#FF6FA5'];for(let i=0;i<80;i++){const c=document.createElement('div');c.className='confetti';c.style.left=Math.random()*100+'vw';c.style.background=cols[Math.floor(Math.random()*cols.length)];c.style.animation=`fall ${1.6+Math.random()*1.8}s linear ${Math.random()*.6}s forwards`;c.style.opacity=0;document.body.appendChild(c);setTimeout(()=>c.remove(),4200);}}
+
+  /* ---------- AUDIO / ALARMAS ---------- */
+  let audioCtx=null,alarmsOn=false;
+  const remindBtn=$('remindBtn'),remindState=$('remindState');
+  const alarmEl=$('alarm'),alarmEmoji=$('alarmEmoji'),alarmTitle=$('alarmTitle'),alarmSub=$('alarmSub');
+  let wakeLock=null;
+  async function requestWake(){try{if('wakeLock' in navigator){wakeLock=await navigator.wakeLock.request('screen');wakeLock.addEventListener('release',()=>{});}}catch(e){}}
+  document.addEventListener('visibilitychange',()=>{if(wakeLock!==null&&document.visibilityState==='visible')requestWake();});
+  function ensureAudio(){if(!audioCtx){try{audioCtx=new(window.AudioContext||window.webkitAudioContext)();}catch(e){}}if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume();}
+  function chime(long){if(!audioCtx)return;const now=audioCtx.currentTime;const notes=long?[880,1108.7,1318.5,1760]:[1046.5,1318.5];notes.forEach((f,i)=>{const t=now+i*.18;const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.22,t+.03);g.gain.exponentialRampToValueAtTime(.0008,t+.9);o.connect(g).connect(audioCtx.destination);o.start(t);o.stop(t+1);});}
+  function blip(){if(!alarmsOn||!audioCtx)return;const t=audioCtx.currentTime;const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='triangle';o.frequency.setValueAtTime(660,t);o.frequency.exponentialRampToValueAtTime(1200,t+.12);g.gain.setValueAtTime(.14,t);g.gain.exponentialRampToValueAtTime(.0008,t+.22);o.connect(g).connect(audioCtx.destination);o.start(t);o.stop(t+.24);}
+  remindBtn.addEventListener('click',()=>{if(!alarmsOn){ensureAudio();requestWake();alarmsOn=true;remindBtn.classList.add('on');remindState.textContent='Alarmas ON';chime(false);}else{alarmsOn=false;remindBtn.classList.remove('on');remindState.textContent='Recordatorios';if(audioCtx)audioCtx.suspend();}});
+  const to12=h=>{if(!h)return'';let[a,b]=h.split(':').map(Number);const ap=a>=12?'pm':'am';a=a%12||12;return a+':'+String(b).padStart(2,'0')+' '+ap;};
+  function triggerAlarm(s){const h2=s.querySelector('h2').textContent,em=s.dataset.emoji||'🔔',ac=getComputedStyle(s).getPropertyValue('--accent');ensureAudio();chime(true);s.classList.add('ringing');setTimeout(()=>s.classList.remove('ringing'),2200);showStation(scenes.indexOf(s));alarmEmoji.textContent=em;alarmTitle.textContent='¡'+h2+'!';alarmSub.textContent='Son las '+to12(s.querySelector('[data-alarm]').value)+'. ¡Es tu momento!';alarmEl.style.setProperty('--accent',ac.trim());alarmEl.classList.add('show');}
+  $('alarmOk').addEventListener('click',()=>alarmEl.classList.remove('show'));
+  setInterval(()=>{if(!alarmsOn||!tracking)return;const n=new Date();const cur=String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');scenes.forEach(s=>{const inp=s.querySelector('[data-alarm]');if(!inp||!inp.value||sceneDone(s))return;const key=s.dataset.scene+'@'+inp.value;if(inp.value===cur&&!firedToday.has(key)){firedToday.add(key);triggerAlarm(s);}});},15000);
+
+  /* ---------- reloj ---------- */
+  const clockTime=$('clockTime'),clockSec=$('clockSec'),clockAp=$('clockAp'),clockDate=$('clockDate');
+  function updateClock(){const n=new Date();let h=n.getHours();const m=n.getMinutes(),s=n.getSeconds();const ap=h>=12?'PM':'AM';h=h%12||12;clockTime.textContent=h+':'+String(m).padStart(2,'0');clockSec.textContent=String(s).padStart(2,'0');clockAp.textContent=ap;let f=n.toLocaleDateString('es-MX',{weekday:'long',day:'numeric',month:'long'});clockDate.textContent=f.charAt(0).toUpperCase()+f.slice(1);}
+  updateClock();setInterval(updateClock,1000);
+
+  window.addEventListener('resize',()=>positionRocket(true));
+  window.addEventListener('load',()=>setTimeout(()=>positionRocket(true),60));
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>setTimeout(()=>positionRocket(true),30));
+
+  /* ---------- arranque ---------- */
+  buildDaySelect();
+  previewNote.hidden = tracking;
+  renderRoutine();
+})();
+</script>
+</body>
+</html>
