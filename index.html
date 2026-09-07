@@ -476,10 +476,13 @@
   function todayStr(){const n=new Date();return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');}
   function loadState(){try{return JSON.parse(localStorage.getItem(LS_KEY))||{};}catch(e){return {};}}
   function saveState(st){try{localStorage.setItem(LS_KEY,JSON.stringify(st));}catch(e){}}
+  const DAY_MS=24*60*60*1000;
   let state = loadState();
   if(!state || typeof state!=='object') state={};
-  if(state.date!==todayStr()){ // día nuevo: se reinicia el progreso (el nombre se conserva)
-    state = {date:todayStr(), name:(state.name||'Isabella'), checks:{}, alarms:{}};
+  // El progreso se conserva 24 h desde que se marcó la primera actividad; luego arranca limpio.
+  const stale = !state.startedAt || (Date.now()-state.startedAt)>=DAY_MS;
+  if(stale){
+    state = {startedAt:null, name:(state.name||'Isabella'), checks:{}, alarms:{}};
     saveState(state);
   }
   state.checks = state.checks||{}; state.alarms = state.alarms||{}; state.name = state.name||'Isabella';
@@ -598,7 +601,7 @@
       // tareas marcadas (solo si es hoy)
       if(tracking){
         sec.querySelectorAll('[data-task]').forEach((t,ti)=>{
-          if(state.checks[st.scene+'#'+ti]) t.classList.add('checked');
+          if(state.checks[st.scene+'@@'+st.tasks[ti].lab]) t.classList.add('checked');
         });
       }
     });
@@ -662,17 +665,17 @@
   /* ---------- persistir cambios ---------- */
   function persistChecks(){
     if(!tracking)return;
-    state.date=todayStr();
-    state.checks={};
+    const nc={};
     scenes.forEach((sec,i)=>{
       const key=stations[i].scene;
-      sec.querySelectorAll('[data-task]').forEach((t,ti)=>{if(t.classList.contains('checked'))state.checks[key+'#'+ti]=1;});
+      sec.querySelectorAll('[data-task]').forEach(t=>{const lab=t.querySelector('.lab').textContent;if(t.classList.contains('checked'))nc[key+'@@'+lab]=1;});
     });
+    state.checks=nc;
+    if(Object.keys(nc).length && !state.startedAt) state.startedAt=Date.now(); // arranca la ventana de 24 h
     saveState(state);
   }
   function persistAlarm(sceneKey,val){
     if(!tracking)return;
-    state.date=todayStr();
     state.alarms[sceneKey]=val;
     saveState(state);
   }
@@ -700,6 +703,7 @@
   $('reset').addEventListener('click',()=>{
     scenes.forEach(s=>s.classList.remove('ringing'));
     scenesEl.querySelectorAll('[data-task]').forEach(t=>t.classList.remove('checked'));
+    state.startedAt=null; // nueva misión: reinicia la ventana de 24 h
     firedToday.clear();prevIdx=null;persistChecks();refresh();showStation(0,-1);
     window.scrollTo({top:0,behavior:reduce?'auto':'smooth'});
   });
@@ -765,8 +769,7 @@
     flightpath.classList.remove('editing');
     editBtn.classList.remove('on'); editState.textContent='Editar';
     editbar.hidden=true; editPanel.hidden=true;
-    // tras reestructurar la rutina, el progreso del día parte limpio (las tareas cambiaron de posición)
-    if(tracking){state.checks={};saveState(state);}
+    // el progreso se conserva: las casillas se identifican por el nombre de la tarea, así que reordenar no las pierde
     prevIdx=null; renderRoutine();
   }
   function resetEdit(){
