@@ -211,6 +211,38 @@
   .confetti{position:fixed;top:-12px;width:11px;height:16px;z-index:99;pointer-events:none;border-radius:2px}
   @keyframes fall{to{transform:translateY(105vh) rotate(600deg);opacity:.9}}
 
+  /* ---------- MODO EDICIÓN ---------- */
+  #editBtn{--c:#5AA9E6}
+  #editBtn.on{--c:#3f7fc0;background:linear-gradient(180deg,#EAF4FF,#CFE6FB)}
+  .editbar{margin:12px 2px 0;font-family:'Fredoka';font-weight:500;font-size:.84rem;color:#1e2f4a;background:linear-gradient(180deg,#DDF3FF,#BEE6FF);border:1.5px solid #8FD0F5;border-radius:14px;padding:10px 13px;box-shadow:0 6px 16px -8px rgba(60,160,240,.6);line-height:1.35}
+  body.editing .pilotbot,body.editing #scenes,body.editing .nav,body.editing #finale,body.editing #previewNote{display:none!important}
+  body.editing .rocket{display:none}
+  body.editing #remindBtn,body.editing #reset{display:none}
+  body.editing .dayselect{opacity:.45;pointer-events:none}
+  .flightpath.editing{cursor:grab}
+  .flightpath.editing .planet{cursor:grab;touch-action:none;animation:wiggle .5s ease-in-out infinite alternate}
+  .flightpath.editing .planet.done{background:radial-gradient(circle at 36% 32%,#3a2c72,#170f3f);border-color:var(--accent)}
+  .flightpath.editing .planet.done::after{content:none}
+  .flightpath.editing .planet.done .ico{display:flex}
+  .flightpath.editing .planet.dragging{animation:none;z-index:20;opacity:.95;box-shadow:0 0 22px 3px var(--accent)}
+  @keyframes wiggle{0%{transform:rotate(-4deg)}100%{transform:rotate(4deg)}}
+  .edit-panel{margin:14px 0 0;display:flex;flex-direction:column;gap:10px}
+  .ed-row{display:flex;align-items:center;gap:9px;background:var(--panel);border:2px solid rgba(255,255,255,.7);border-radius:16px;padding:10px 11px;box-shadow:var(--shadow),0 0 20px -14px var(--accent)}
+  .ed-moves{display:flex;flex-direction:column;gap:3px;flex:0 0 auto}
+  .ed-move{width:30px;height:22px;border-radius:7px;border:1.5px solid color-mix(in srgb,var(--accent) 40%,#fff);background:linear-gradient(180deg,#fff,#F0EAFB);color:var(--ink);font-size:.72rem;cursor:pointer;line-height:1;display:flex;align-items:center;justify-content:center;padding:0}
+  .ed-move[disabled]{opacity:.3;pointer-events:none}
+  .ed-num{font-family:'Orbitron';font-weight:800;font-size:1rem;color:color-mix(in srgb,var(--accent) 65%,#4a3b7a);min-width:22px;text-align:center;flex:0 0 auto}
+  .ed-emoji{font-size:1.5rem;flex:0 0 auto}
+  .ed-fields{flex:1;display:flex;flex-direction:column;gap:6px;min-width:0}
+  .ed-fields input{font-family:'Fredoka';border:1.5px solid var(--border);border-radius:9px;padding:8px 9px;font-size:.92rem;color:var(--ink);background:#fff;width:100%}
+  .ed-fields .ed-name{font-weight:600;font-size:.8rem;color:var(--ink-soft)}
+  .ed-fields .ed-title{font-weight:700}
+  .ed-fields input:focus-visible{outline:2px solid var(--accent);border-color:var(--accent)}
+  .ed-actions{display:flex;gap:8px;margin-top:4px}
+  .ed-actions .rk{flex:1;padding:13px;font-size:.94rem;display:flex;align-items:center;justify-content:center;gap:6px}
+  #edReset{--c:#E68A8A}
+  #edDone{--c:#2fa07f;background:linear-gradient(180deg,#EAFFF3,#CFF7E1)}
+
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -249,6 +281,7 @@
         <div class="ck-controls">
           <button class="rk" id="remindBtn"><span class="ck-btn-ico">&#128276;</span> <span id="remindState">Recordatorios</span></button>
           <button class="rk" id="reset"><span class="ck-btn-ico">&#8635;</span> Nueva misi&oacute;n</button>
+          <button class="rk" id="editBtn"><span class="ck-btn-ico">&#9999;&#65039;</span> <span id="editState">Editar</span></button>
         </div>
         <div class="ck-deco" aria-hidden="true">
           <span class="sw on"></span><span class="sw"></span><span class="sw on"></span>
@@ -261,6 +294,7 @@
     <!-- SELECTOR DE DÍA -->
     <div class="dayselect" id="dayselect" role="tablist" aria-label="Día de la rutina"></div>
     <div class="preview-note" id="previewNote" hidden>👀 Vista previa — el progreso solo se guarda el día de hoy</div>
+    <div class="editbar" id="editbar" hidden>✏️ <b>Modo edición.</b> Arrastra las estaciones en el radar (o usa ▲ ▼) para reordenar; el número se ajusta solo. Cambia el nombre y el título en cada tarjeta.</div>
 
     <!-- RADAR / PISTA -->
     <div class="flightpath" id="flightpath">
@@ -292,6 +326,8 @@
       <div class="pager" id="pager" aria-hidden="true"></div>
       <button class="rk rk-nav" id="next" aria-label="Estación siguiente">›</button>
     </div>
+
+    <div class="edit-panel" id="editPanel" hidden></div>
 
     <div class="finale" id="finale">
       <img src="assets/isabella-insignia.webp" alt="Isabella astronauta">
@@ -391,6 +427,21 @@
   const CHIP_ORDER = [1,2,3,4,5,6,0];
   const CHIP_LABEL = {0:'Dom',1:'Lun',2:'Mar',3:'Mié',4:'Jue',5:'Vie',6:'Sáb'};
 
+  /* ---------- Personalización por rutina (orden + nombre/título), persistente ---------- */
+  const LS_CUSTOM='rutinaIsabella_custom_v1';
+  let CUSTOM=(()=>{try{return JSON.parse(localStorage.getItem(LS_CUSTOM))||{};}catch(e){return {};}})();
+  function saveCustom(){try{localStorage.setItem(LS_CUSTOM,JSON.stringify(CUSTOM));}catch(e){}}
+  const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const baseStations=key=>ROUTINES[key].stations;
+  function customizedStations(key){
+    const base=baseStations(key), byKey=Object.fromEntries(base.map(s=>[s.scene,s]));
+    const c=CUSTOM[key]||{};
+    let order=(c.order||[]).filter(k=>byKey[k]);
+    base.forEach(s=>{if(!order.includes(s.scene))order.push(s.scene);});
+    return order.map(k=>{const s=byKey[k],o=(c.meta&&c.meta[k])||{};
+      return Object.assign({},s,{time:o.time!==undefined?o.time:s.time,title:o.title!==undefined?o.title:s.title});});
+  }
+
   /* ============================================================
      PERSISTENCIA (por día)
      ============================================================ */
@@ -413,6 +464,7 @@
   const rocket=$('rocket'),goal=$('goal'),finale=$('finale'),nameEl=$('name'),botText=$('botText'),pager=$('pager');
   const prevBtn=$('prev'),nextBtn=$('next'),kickerEl=$('kicker'),scenesEl=$('scenes'),fpPlanets=$('fpPlanets');
   const dayselect=$('dayselect'),previewNote=$('previewNote');
+  const editBtn=$('editBtn'),editState=$('editState'),editbar=$('editbar'),editPanel=$('editPanel');
 
   const todayDow = new Date().getDay();
   let selectedDow = todayDow;
@@ -420,7 +472,7 @@
   let tracking = true;         // ¿el día visible es hoy? (solo entonces se guarda)
   let stations=[], scenes=[], planets=[], pagerDots=[];
   let TOTAL_STARS=0, TOTAL_STEPS=0;
-  let prevIdx=null, flyT=null, viewIdx=0;
+  let prevIdx=null, flyT=null, viewIdx=0, editing=false;
   const firedToday=new Set();
 
   const getName=()=>{const t=nameEl.textContent.trim();return t||'Isabella';};
@@ -446,6 +498,7 @@
     });
   }
   function selectDay(dow){
+    if(editing)return;
     selectedDow=dow;
     routineKey=DAY_TO_ROUTINE[dow];
     tracking=(dow===todayDow);
@@ -460,7 +513,7 @@
      ============================================================ */
   function renderRoutine(){
     const R=ROUTINES[routineKey];
-    stations=R.stations;
+    stations=customizedStations(routineKey);
     kickerEl.textContent=R.kicker;
 
     // planetas
@@ -536,7 +589,7 @@
   const currentIndex=()=>{for(let i=0;i<scenes.length;i++)if(!sceneDone(scenes[i]))return i;return scenes.length;};
 
   function positionRocket(instant){
-    if(!planets.length)return;
+    if(editing||!planets.length)return;
     const idx=currentIndex();const target=idx>=scenes.length?goal:planets[idx];
     const f=flightpath.getBoundingClientRect(),p=target.getBoundingClientRect();
     const left=p.left-f.left+p.width/2-rocket.offsetWidth/2;
@@ -607,8 +660,9 @@
     if(al){const sec=al.closest('.scene');persistAlarm(sec.dataset.scene,al.value);firedToday.clear();}
   });
   fpPlanets.addEventListener('click',e=>{
+    if(editing)return;
     const p=e.target.closest('.planet:not(.goal)');
-    if(p)showStation(+p.dataset.idx);
+    if(p&&p.dataset.idx!==undefined)showStation(+p.dataset.idx);
   });
 
   prevBtn.addEventListener('click',()=>showStation(viewIdx-1,-1));
@@ -656,6 +710,128 @@
   window.addEventListener('resize',()=>positionRocket(true));
   window.addEventListener('load',()=>setTimeout(()=>positionRocket(true),60));
   if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>setTimeout(()=>positionRocket(true),30));
+
+  /* ============================================================
+     MODO EDICIÓN (reordenar + nombre/título por estación)
+     ============================================================ */
+  let workOrder=null, workMeta=null;
+
+  function enterEdit(){
+    editing=true;
+    document.body.classList.add('editing');
+    flightpath.classList.add('editing');
+    editBtn.classList.add('on'); editState.textContent='Listo';
+    editbar.hidden=false; editPanel.hidden=false;
+    const cur=customizedStations(routineKey);
+    workOrder=cur.map(s=>s.scene);
+    workMeta={}; cur.forEach(s=>workMeta[s.scene]={time:s.time,title:s.title});
+    renderEditingRadar(); renderEditPanel();
+    window.scrollTo({top:0,behavior:reduce?'auto':'smooth'});
+  }
+  function exitEditSave(){
+    CUSTOM[routineKey]={order:workOrder.slice(), meta:JSON.parse(JSON.stringify(workMeta))};
+    saveCustom();
+    editing=false;
+    document.body.classList.remove('editing');
+    flightpath.classList.remove('editing');
+    editBtn.classList.remove('on'); editState.textContent='Editar';
+    editbar.hidden=true; editPanel.hidden=true;
+    prevIdx=null; renderRoutine();
+  }
+  function resetEdit(){
+    delete CUSTOM[routineKey]; saveCustom();
+    const base=baseStations(routineKey);
+    workOrder=base.map(s=>s.scene);
+    workMeta={}; base.forEach(s=>workMeta[s.scene]={time:s.time,title:s.title});
+    renderEditingRadar(); renderEditPanel();
+  }
+  const stByKey=key=>Object.fromEntries(baseStations(key).map(s=>[s.scene,s]));
+
+  function renderEditingRadar(){
+    [...fpPlanets.querySelectorAll('.planet:not(.goal)')].forEach(p=>p.remove());
+    const byKey=stByKey(routineKey);
+    workOrder.forEach(k=>{
+      const s=byKey[k]; const b=document.createElement('button');
+      b.className='planet'; b.dataset.key=k; b.setAttribute('aria-label',(workMeta[k].time||''));
+      b.style.setProperty('--accent',s.accent);
+      b.innerHTML='<span class="ico">'+s.emoji+'</span>';
+      fpPlanets.insertBefore(b,goal);
+    });
+  }
+  function renderEditPanel(){
+    const byKey=stByKey(routineKey);
+    editPanel.innerHTML='';
+    workOrder.forEach((k,i)=>{
+      const s=byKey[k], m=workMeta[k];
+      const row=document.createElement('div');
+      row.className='ed-row'; row.dataset.key=k; row.style.setProperty('--accent',s.accent);
+      row.innerHTML=
+        '<div class="ed-moves">'+
+          '<button class="ed-move" data-dir="-1" aria-label="Subir" '+(i===0?'disabled':'')+'>▲</button>'+
+          '<button class="ed-move" data-dir="1" aria-label="Bajar" '+(i===workOrder.length-1?'disabled':'')+'>▼</button>'+
+        '</div>'+
+        '<span class="ed-num">'+(i+1)+'</span>'+
+        '<span class="ed-emoji">'+s.emoji+'</span>'+
+        '<div class="ed-fields">'+
+          '<input class="ed-name" placeholder="Nombre (ej. Al despertar)" value="'+esc(m.time)+'">'+
+          '<input class="ed-title" placeholder="Título (ej. Empiezo mi día)" value="'+esc(m.title)+'">'+
+        '</div>';
+      editPanel.appendChild(row);
+    });
+    const act=document.createElement('div');
+    act.className='ed-actions';
+    act.innerHTML='<button class="rk" id="edReset">↺ Restablecer</button><button class="rk" id="edDone">✓ Guardar</button>';
+    editPanel.appendChild(act);
+    editPanel.querySelector('#edReset').addEventListener('click',resetEdit);
+    editPanel.querySelector('#edDone').addEventListener('click',exitEditSave);
+  }
+  function moveItem(key,dir){
+    const i=workOrder.indexOf(key), j=i+dir;
+    if(j<0||j>=workOrder.length)return;
+    [workOrder[i],workOrder[j]]=[workOrder[j],workOrder[i]];
+    renderEditPanel(); renderEditingRadar();
+  }
+  editPanel.addEventListener('click',e=>{
+    const mv=e.target.closest('.ed-move'); if(!mv)return;
+    const row=mv.closest('.ed-row'); moveItem(row.dataset.key,+mv.dataset.dir);
+  });
+  editPanel.addEventListener('input',e=>{
+    const row=e.target.closest('.ed-row'); if(!row)return;
+    const k=row.dataset.key;
+    if(e.target.classList.contains('ed-name')) workMeta[k].time=e.target.value;
+    else if(e.target.classList.contains('ed-title')) workMeta[k].title=e.target.value;
+  });
+
+  /* arrastre en el radar (pointer, funciona en táctil) */
+  let drag=null;
+  fpPlanets.addEventListener('pointerdown',e=>{
+    if(!editing)return;
+    const pl=e.target.closest('.planet:not(.goal)'); if(!pl)return;
+    e.preventDefault();
+    drag={el:pl,key:pl.dataset.key,startX:e.clientX};
+    try{pl.setPointerCapture(e.pointerId);}catch(_){}
+    pl.classList.add('dragging');
+  });
+  fpPlanets.addEventListener('pointermove',e=>{
+    if(!drag)return;
+    drag.el.style.transform='translateX('+(e.clientX-drag.startX)+'px) scale(1.15)';
+  });
+  function endDrag(e){
+    if(!drag)return;
+    const x=(e&&e.clientX)||drag.startX;
+    const centers=[...fpPlanets.querySelectorAll('.planet:not(.goal)')]
+      .map(p=>{const r=p.getBoundingClientRect();return {key:p.dataset.key,c:r.left+r.width/2};});
+    const without=workOrder.filter(k=>k!==drag.key);
+    let idx=without.length;
+    for(let i=0;i<without.length;i++){const cc=centers.find(o=>o.key===without[i]); if(cc && x<cc.c){idx=i;break;}}
+    without.splice(idx,0,drag.key);
+    drag.el.classList.remove('dragging'); drag.el.style.transform='';
+    drag=null; workOrder=without; renderEditPanel(); renderEditingRadar();
+  }
+  fpPlanets.addEventListener('pointerup',endDrag);
+  fpPlanets.addEventListener('pointercancel',endDrag);
+
+  editBtn.addEventListener('click',()=>{ if(!editing) enterEdit(); else exitEditSave(); });
 
   /* ---------- arranque ---------- */
   buildDaySelect();
