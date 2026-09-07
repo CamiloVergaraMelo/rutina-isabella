@@ -149,7 +149,8 @@
   @keyframes sIn{0%{opacity:0;transform:translateX(34px) scale(.98)}100%{opacity:1;transform:none}}
   @keyframes sInRev{0%{opacity:0;transform:translateX(-34px) scale(.98)}100%{opacity:1;transform:none}}
 
-  .card{position:relative;background:var(--panel);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border-radius:var(--radius);padding:18px;border:2px solid rgba(255,255,255,.7);box-shadow:var(--shadow),0 0 30px -16px var(--accent)}
+  .card{position:relative;background:var(--panel);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border-radius:var(--radius);padding:18px;border:2px solid rgba(255,255,255,.7);box-shadow:var(--shadow),0 0 30px -16px var(--accent);display:flex;gap:12px;align-items:stretch}
+  .card-main{flex:1;min-width:0}
   .scene.ringing .card{animation:ring .7s cubic-bezier(.36,.07,.19,.97) 3}
   @keyframes ring{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
 
@@ -177,6 +178,12 @@
   .fuel-cells i.on{background:linear-gradient(90deg,color-mix(in srgb,var(--accent) 55%,#fff),var(--accent));box-shadow:0 0 10px -1px var(--accent)}
   .fuel-label{font-family:'Fredoka';font-weight:600;font-size:.78rem;color:var(--ink-soft);flex:0 0 auto;min-width:76px;text-align:right}
   .fuel.full .fuel-label{color:color-mix(in srgb,var(--accent) 70%,#000)}
+  /* combustible vertical al costado derecho de la card */
+  .fuel-v{flex:0 0 auto;margin-top:0;flex-direction:column;align-items:center;justify-content:flex-start;gap:9px;width:48px;padding:12px 6px}
+  .fuel-v .fuel-ico{font-size:1.25rem;flex:0 0 auto;transition:transform .3s}
+  .fuel-v.full .fuel-ico{transform:translateY(-2px) scale(1.12)}
+  .fuel-v .fuel-cells{flex:1 1 auto;display:flex;flex-direction:column-reverse;gap:6px;width:18px;min-height:150px}
+  .fuel-v .fuel-cells i{width:18px;height:auto;flex:1;border-radius:7px}
 
   .st-foot{margin-top:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
   .rk-time{display:inline-flex;align-items:center;gap:8px;padding:9px 13px;--c:var(--accent);font-size:.86rem;color:var(--ink)}
@@ -242,6 +249,21 @@
   .ed-actions .rk{flex:1;padding:13px;font-size:.94rem;display:flex;align-items:center;justify-content:center;gap:6px}
   #edReset{--c:#E68A8A}
   #edDone{--c:#2fa07f;background:linear-gradient(180deg,#EAFFF3,#CFF7E1)}
+  /* edición: cabecera de estación + editor de tareas */
+  .ed-row{flex-direction:column;align-items:stretch;gap:11px}
+  .ed-head{display:flex;align-items:center;gap:9px}
+  .ed-tasks{border-top:1.5px dashed var(--border);padding-top:10px;display:flex;flex-direction:column;gap:7px}
+  .ed-tasks-lbl{font-family:'Orbitron';font-weight:700;font-size:.5rem;letter-spacing:1.2px;color:var(--ink-soft);text-transform:uppercase}
+  .ed-task{display:flex;align-items:center;gap:7px}
+  .ed-tmoves{display:flex;gap:2px;flex:0 0 auto}
+  .ed-tmove{width:24px;height:24px;border-radius:6px;border:1.5px solid var(--border);background:#fff;color:var(--ink);font-size:.62rem;cursor:pointer;line-height:1;display:flex;align-items:center;justify-content:center;padding:0}
+  .ed-tmove[disabled]{opacity:.3;pointer-events:none}
+  .ed-temoji{width:42px;flex:0 0 auto;text-align:center;font-size:1.15rem;padding:6px 2px;border:1.5px solid var(--border);border-radius:9px;background:#fff;cursor:pointer}
+  .ed-tlab{flex:1;min-width:0;font-family:'Fredoka';font-weight:600;font-size:.9rem;color:var(--ink);border:1.5px solid var(--border);border-radius:9px;padding:7px 9px;background:#fff}
+  .ed-temoji:focus-visible,.ed-tlab:focus-visible{outline:2px solid var(--accent);border-color:var(--accent)}
+  .ed-trem{width:28px;height:28px;flex:0 0 auto;border-radius:8px;border:1.5px solid #f0b4b4;background:#fff;color:#d06a6a;font-size:.8rem;cursor:pointer;line-height:1;padding:0}
+  .ed-trem[disabled]{opacity:.3;pointer-events:none}
+  .ed-addtask{align-self:flex-start;font-family:'Fredoka';font-weight:600;font-size:.82rem;color:color-mix(in srgb,var(--accent) 70%,#4a3b7a);background:color-mix(in srgb,var(--accent) 12%,#fff);border:1.5px dashed color-mix(in srgb,var(--accent) 45%,#fff);border-radius:10px;padding:7px 12px;cursor:pointer}
 
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
@@ -439,7 +461,11 @@
     let order=(c.order||[]).filter(k=>byKey[k]);
     base.forEach(s=>{if(!order.includes(s.scene))order.push(s.scene);});
     return order.map(k=>{const s=byKey[k],o=(c.meta&&c.meta[k])||{};
-      return Object.assign({},s,{time:o.time!==undefined?o.time:s.time,title:o.title!==undefined?o.title:s.title});});
+      return Object.assign({},s,{
+        time:o.time!==undefined?o.time:s.time,
+        title:o.title!==undefined?o.title:s.title,
+        tasks:(o.tasks&&o.tasks.length)?o.tasks.map(t=>({em:t.em,lab:t.lab})):s.tasks
+      });});
   }
 
   /* ============================================================
@@ -535,10 +561,12 @@
       const acts=s.tasks.map((t,ti)=>`<button class="rk rk-task" data-task data-i="${ti}"><span class="em">${t.em}</span><span class="lab">${t.lab}</span><span class="rk-led"></span></button>`).join('');
       sec.innerHTML=
         `<div class="card">
-          <div class="st-topline"><span class="st-planet">${s.emoji}</span><div><span class="time">Estación ${i+1} · ${s.time}</span><h2>${s.title}</h2></div></div>
-          <div class="acts">${acts}</div>
-          <div class="fuel" aria-hidden="true"><span class="fuel-ico">⛽</span><div class="fuel-cells" data-cells="${s.tasks.length}"></div><span class="fuel-label">Combustible</span></div>
-          <div class="st-foot"><span class="rk rk-time">🔔 <input type="time" data-alarm aria-label="Hora"><button class="clear" data-clear title="Quitar">✕</button></span></div>
+          <div class="card-main">
+            <div class="st-topline"><span class="st-planet">${s.emoji}</span><div><span class="time">Estación ${i+1} · ${s.time}</span><h2>${s.title}</h2></div></div>
+            <div class="acts">${acts}</div>
+            <div class="st-foot"><span class="rk rk-time">🔔 <input type="time" data-alarm aria-label="Hora"><button class="clear" data-clear title="Quitar">✕</button></span></div>
+          </div>
+          <div class="fuel fuel-v" aria-hidden="true"><span class="fuel-ico">⛽</span><div class="fuel-cells" data-cells="${s.tasks.length}"></div></div>
         </div>`;
       scenesEl.appendChild(sec);
     });
@@ -612,7 +640,7 @@
     scenes.forEach((s,i)=>{
       planets[i].classList.toggle('done',sceneDone(s));
       const fuel=s.querySelector('.fuel');
-      if(fuel){const cells=[...fuel.querySelectorAll('.fuel-cells i')];const p=sceneProg(s);cells.forEach((c,k)=>c.classList.toggle('on',k<p.done));const full=p.done>=p.total;fuel.classList.toggle('full',full);fuel.querySelector('.fuel-label').textContent=full?'¡Despegue! 🚀':'Combustible';}
+      if(fuel){const cells=[...fuel.querySelectorAll('.fuel-cells i')];const p=sceneProg(s);cells.forEach((c,k)=>c.classList.toggle('on',k<p.done));const full=p.done>=p.total;fuel.classList.toggle('full',full);const ico=fuel.querySelector('.fuel-ico');if(ico)ico.textContent=full?'🚀':'⛽';}
     });
     const stars=scenes.filter(sceneDone).length,steps=stepsDone(),pct=TOTAL_STEPS?steps/TOTAL_STEPS:0;
     progFill.style.width=(pct*100)+'%';
@@ -724,7 +752,7 @@
     editbar.hidden=false; editPanel.hidden=false;
     const cur=customizedStations(routineKey);
     workOrder=cur.map(s=>s.scene);
-    workMeta={}; cur.forEach(s=>workMeta[s.scene]={time:s.time,title:s.title});
+    workMeta={}; cur.forEach(s=>workMeta[s.scene]={time:s.time,title:s.title,tasks:s.tasks.map(t=>({em:t.em,lab:t.lab}))});
     renderEditingRadar(); renderEditPanel();
     window.scrollTo({top:0,behavior:reduce?'auto':'smooth'});
   }
@@ -736,13 +764,15 @@
     flightpath.classList.remove('editing');
     editBtn.classList.remove('on'); editState.textContent='Editar';
     editbar.hidden=true; editPanel.hidden=true;
+    // tras reestructurar la rutina, el progreso del día parte limpio (las tareas cambiaron de posición)
+    if(tracking){state.checks={};saveState(state);}
     prevIdx=null; renderRoutine();
   }
   function resetEdit(){
     delete CUSTOM[routineKey]; saveCustom();
     const base=baseStations(routineKey);
     workOrder=base.map(s=>s.scene);
-    workMeta={}; base.forEach(s=>workMeta[s.scene]={time:s.time,title:s.title});
+    workMeta={}; base.forEach(s=>workMeta[s.scene]={time:s.time,title:s.title,tasks:s.tasks.map(t=>({em:t.em,lab:t.lab}))});
     renderEditingRadar(); renderEditPanel();
   }
   const stByKey=key=>Object.fromEntries(baseStations(key).map(s=>[s.scene,s]));
@@ -765,16 +795,34 @@
       const s=byKey[k], m=workMeta[k];
       const row=document.createElement('div');
       row.className='ed-row'; row.dataset.key=k; row.style.setProperty('--accent',s.accent);
+      const tasks=m.tasks||[];
+      const taskRows=tasks.map((t,ti)=>
+        '<div class="ed-task" data-ti="'+ti+'">'+
+          '<div class="ed-tmoves">'+
+            '<button class="ed-tmove" data-tdir="-1" aria-label="Subir tarea" '+(ti===0?'disabled':'')+'>▲</button>'+
+            '<button class="ed-tmove" data-tdir="1" aria-label="Bajar tarea" '+(ti===tasks.length-1?'disabled':'')+'>▼</button>'+
+          '</div>'+
+          '<input class="ed-temoji" maxlength="6" value="'+esc(t.em)+'" aria-label="Icono de la tarea">'+
+          '<input class="ed-tlab" value="'+esc(t.lab)+'" placeholder="Nombre de la tarea">'+
+          '<button class="ed-trem" aria-label="Quitar tarea" '+(tasks.length<=1?'disabled':'')+'>✕</button>'+
+        '</div>').join('');
       row.innerHTML=
-        '<div class="ed-moves">'+
-          '<button class="ed-move" data-dir="-1" aria-label="Subir" '+(i===0?'disabled':'')+'>▲</button>'+
-          '<button class="ed-move" data-dir="1" aria-label="Bajar" '+(i===workOrder.length-1?'disabled':'')+'>▼</button>'+
+        '<div class="ed-head">'+
+          '<div class="ed-moves">'+
+            '<button class="ed-move" data-dir="-1" aria-label="Subir estación" '+(i===0?'disabled':'')+'>▲</button>'+
+            '<button class="ed-move" data-dir="1" aria-label="Bajar estación" '+(i===workOrder.length-1?'disabled':'')+'>▼</button>'+
+          '</div>'+
+          '<span class="ed-num">'+(i+1)+'</span>'+
+          '<span class="ed-emoji">'+s.emoji+'</span>'+
+          '<div class="ed-fields">'+
+            '<input class="ed-name" placeholder="Nombre (ej. Al despertar)" value="'+esc(m.time)+'">'+
+            '<input class="ed-title" placeholder="Título (ej. Empiezo mi día)" value="'+esc(m.title)+'">'+
+          '</div>'+
         '</div>'+
-        '<span class="ed-num">'+(i+1)+'</span>'+
-        '<span class="ed-emoji">'+s.emoji+'</span>'+
-        '<div class="ed-fields">'+
-          '<input class="ed-name" placeholder="Nombre (ej. Al despertar)" value="'+esc(m.time)+'">'+
-          '<input class="ed-title" placeholder="Título (ej. Empiezo mi día)" value="'+esc(m.title)+'">'+
+        '<div class="ed-tasks">'+
+          '<span class="ed-tasks-lbl">Tareas</span>'+
+          taskRows+
+          '<button class="ed-addtask">+ Agregar tarea</button>'+
         '</div>';
       editPanel.appendChild(row);
     });
@@ -791,15 +839,22 @@
     [workOrder[i],workOrder[j]]=[workOrder[j],workOrder[i]];
     renderEditPanel(); renderEditingRadar();
   }
+  function moveTask(k,ti,dir){const a=workMeta[k].tasks;const j=ti+dir;if(j<0||j>=a.length)return;[a[ti],a[j]]=[a[j],a[ti]];renderEditPanel();}
+  function addTask(k){workMeta[k].tasks.push({em:'⭐',lab:'Nueva tarea'});renderEditPanel();}
+  function removeTask(k,ti){const a=workMeta[k].tasks;if(a.length<=1)return;a.splice(ti,1);renderEditPanel();}
   editPanel.addEventListener('click',e=>{
-    const mv=e.target.closest('.ed-move'); if(!mv)return;
-    const row=mv.closest('.ed-row'); moveItem(row.dataset.key,+mv.dataset.dir);
+    const row=e.target.closest('.ed-row'); if(!row)return; const k=row.dataset.key;
+    const mv=e.target.closest('.ed-move'); if(mv){moveItem(k,+mv.dataset.dir);return;}
+    const tmv=e.target.closest('.ed-tmove'); if(tmv){moveTask(k,+tmv.closest('.ed-task').dataset.ti,+tmv.dataset.tdir);return;}
+    const rem=e.target.closest('.ed-trem'); if(rem){removeTask(k,+rem.closest('.ed-task').dataset.ti);return;}
+    const add=e.target.closest('.ed-addtask'); if(add){addTask(k);return;}
   });
   editPanel.addEventListener('input',e=>{
-    const row=e.target.closest('.ed-row'); if(!row)return;
-    const k=row.dataset.key;
-    if(e.target.classList.contains('ed-name')) workMeta[k].time=e.target.value;
-    else if(e.target.classList.contains('ed-title')) workMeta[k].title=e.target.value;
+    const row=e.target.closest('.ed-row'); if(!row)return; const k=row.dataset.key, t=e.target;
+    if(t.classList.contains('ed-name')) workMeta[k].time=t.value;
+    else if(t.classList.contains('ed-title')) workMeta[k].title=t.value;
+    else if(t.classList.contains('ed-temoji')){const ti=+t.closest('.ed-task').dataset.ti; if(workMeta[k].tasks[ti])workMeta[k].tasks[ti].em=t.value;}
+    else if(t.classList.contains('ed-tlab')){const ti=+t.closest('.ed-task').dataset.ti; if(workMeta[k].tasks[ti])workMeta[k].tasks[ti].lab=t.value;}
   });
 
   /* arrastre en el radar (pointer, funciona en táctil) */
