@@ -18,8 +18,12 @@ cambiar de día. El nombre, las horas y las alarmas quedan guardados.
 
 ## Estructura
 - `index.html` — app autónoma (HTML/CSS/JS puro, sin frameworks).
-- `assets/` — imágenes (Isabella, robot copiloto, ícono, insignia).
+- `assets/` — imágenes optimizadas (WebP + ícono PNG).
+
+## Editar las rutinas
+Modifica el objeto `ROUTINES` dentro de `index.html` (una entrada por día:
+`escuela`, `sabado`, `domingo`). Cada estación tiene emoji, hora, título,
+mensaje del copiloto y lista de tareas.
 
 ## Deploy
 Sitio estático. Desplegado en Vercel (proyecto `rutina-isabella`).
-Para editar las rutinas, modifica el objeto `ROUTINES` dentro de `index.html`.
