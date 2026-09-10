@@ -267,6 +267,111 @@
   .ed-addtask{align-self:flex-start;font-family:'Fredoka';font-weight:600;font-size:.82rem;color:color-mix(in srgb,var(--accent) 70%,#4a3b7a);background:color-mix(in srgb,var(--accent) 12%,#fff);border:1.5px dashed color-mix(in srgb,var(--accent) 45%,#fff);border-radius:10px;padding:7px 12px;cursor:pointer}
 
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+  /* ============================================================
+     MOCHILA DE MAÑANA — panel lateral con la circular de la escuela
+     ============================================================ */
+  .mb-tab{position:fixed;right:0;top:50%;transform:translateY(-50%);z-index:60;
+    display:flex;flex-direction:column;align-items:center;gap:6px;
+    padding:21px 9px 14px;border:none;border-right:0;cursor:pointer;
+    font-family:'Fredoka';font-weight:600;font-size:.74rem;letter-spacing:.5px;color:var(--ink);
+    background:linear-gradient(180deg,#FFFFFF,#EDE5FB);
+    border-radius:16px 0 0 16px;
+    box-shadow:-6px 0 18px -8px rgba(20,8,50,.8),inset 0 1px 0 #fff;
+    -webkit-tap-highlight-color:transparent;transition:transform .14s,filter .2s}
+  .mb-tab:hover{filter:brightness(1.04)}
+  .mb-tab:active{transform:translateY(-50%) translateX(3px)}
+  .mb-tab:focus-visible{outline:3px solid #fff;outline-offset:3px}
+  .mb-tab .mb-ico{font-size:1.35rem;line-height:1}
+  .mb-tab .mb-word{writing-mode:vertical-rl;text-orientation:mixed}
+  .mb-tab .mb-dot{position:absolute;top:7px;left:50%;width:9px;height:9px;border-radius:50%;
+    background:#FF6B8B;box-shadow:0 0 8px #FF6B8B;animation:mbpulse 1.8s ease-in-out infinite}
+  @keyframes mbpulse{0%,100%{opacity:.6;transform:translateX(-50%) scale(.85)}
+                     50%{opacity:1;transform:translateX(-50%) scale(1.15)}}
+
+  .mb-bd{position:fixed;inset:0;z-index:70;background:rgba(10,6,30,.55);
+    backdrop-filter:blur(2px);opacity:0;pointer-events:none;transition:opacity .22s}
+  .mb-bd.show{opacity:1;pointer-events:auto}
+
+  .mochila{position:fixed;top:0;right:0;z-index:80;width:min(370px,88vw);height:100%;
+    display:flex;flex-direction:column;
+    transform:translateX(101%);transition:transform .26s cubic-bezier(.22,.9,.3,1);
+    background:linear-gradient(180deg,#1D1348 0%,#2A1A5E 42%,#150E38 100%);
+    border-left:2px solid rgba(255,255,255,.34);
+    box-shadow:-22px 0 46px -20px rgba(0,0,0,.85);
+    padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
+  .mochila.open{transform:translateX(0)}
+  @media (prefers-reduced-motion: reduce){ .mochila{transition:none} }
+
+  .mb-head{position:relative;flex:0 0 auto;padding:16px 16px 13px;
+    border-bottom:1px solid rgba(255,255,255,.14);
+    background:radial-gradient(120% 130% at 50% -20%,rgba(190,150,255,.34),transparent 62%)}
+  .mb-kick{font-family:'Orbitron';font-weight:700;font-size:.56rem;letter-spacing:1.6px;color:#C9BAF0}
+  .mb-title{font-family:'Fredoka';font-weight:600;font-size:1.24rem;color:#fff;margin-top:3px;line-height:1.2}
+  .mb-date{font-family:'Nunito';font-weight:700;font-size:.82rem;color:#B6A6E4}
+  .mb-date::first-letter{text-transform:uppercase}
+  .mb-close{position:absolute;top:12px;right:12px;width:32px;height:32px;border-radius:50%;
+    border:1.5px solid rgba(255,255,255,.24);background:rgba(255,255,255,.1);color:#fff;
+    font-size:1rem;cursor:pointer;line-height:1;-webkit-tap-highlight-color:transparent}
+  .mb-close:hover{background:rgba(255,255,255,.2)}
+  .mb-close:focus-visible{outline:3px solid #fff;outline-offset:2px}
+
+  .mb-body{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 16px 18px;
+    display:flex;flex-direction:column;gap:12px}
+
+  .mb-card{background:var(--panel);border:2px solid rgba(255,255,255,.5);border-radius:18px;
+    padding:12px 13px;box-shadow:0 12px 24px -14px rgba(20,8,50,.9)}
+  .mb-card h3{font-family:'Fredoka';font-weight:600;font-size:.79rem;letter-spacing:.4px;
+    text-transform:uppercase;color:var(--ink-soft);display:flex;align-items:center;gap:7px;margin-bottom:8px}
+  .mb-card p{font-size:.93rem;color:var(--ink)}
+  .mb-card ul,.mb-alert ul{list-style:none;display:flex;flex-direction:column;gap:8px}
+  .mb-card li,.mb-alert li{font-size:.92rem;display:flex;gap:8px;align-items:flex-start;line-height:1.42}
+  .mb-card li{color:var(--ink)}
+  .mb-b{flex:0 0 auto;font-size:1rem;margin-top:1px}
+  .h-ico{flex:0 0 auto;font-size:1.02rem;line-height:1}
+  .mb-tagline{font-family:'Fredoka';font-weight:600;font-size:.7rem;color:var(--ink-soft);
+    text-transform:uppercase;letter-spacing:.4px;display:block}
+
+  /* Uniforme: el dato que más se olvida, así que va grande y a color */
+  .mb-uni{display:flex;align-items:center;gap:11px;border-radius:18px;padding:13px;
+    border:2px solid rgba(255,255,255,.55);box-shadow:0 12px 24px -14px rgba(20,8,50,.9)}
+  .mb-uni .u-ico{font-size:1.9rem;line-height:1}
+  .mb-uni .u-lbl{font-family:'Orbitron';font-weight:700;font-size:.54rem;letter-spacing:1.4px;
+    color:rgba(30,18,70,.62);display:block}
+  .mb-uni .u-val{font-family:'Fredoka';font-weight:600;font-size:1.1rem;color:#22163F;line-height:1.2}
+  .mb-uni .u-note{font-size:.76rem;color:rgba(30,18,70,.7);display:block;margin-top:1px}
+  .mb-uni.diario{background:linear-gradient(180deg,#DCEBFF,#BFD9FA)}
+  .mb-uni.deportes{background:linear-gradient(180deg,#CFF6E6,#A8EBCD)}
+  .mb-uni.color{background:linear-gradient(180deg,#FFE9C9,#FFD79B)}
+
+  /* Avisos */
+  .mb-alert{border-radius:18px;padding:12px 13px;border:2px solid;font-size:.92rem;line-height:1.4}
+  .mb-alert b{display:flex;align-items:center;gap:7px;font-family:'Fredoka';font-weight:600;font-size:.98rem;margin-bottom:3px}
+  .mb-alert.evento{background:linear-gradient(180deg,#FFF4C9,#FFE79A);border-color:#F0CB5E;color:#3B2A05}
+  .mb-alert.libre{background:linear-gradient(180deg,#FFD9E2,#FFB8C9);border-color:#F58BA5;color:#4A1122}
+  .mb-alert.llevar{background:linear-gradient(180deg,#E6DBFF,#CFBCFA);border-color:#A98BE8;color:#2A1758}
+
+  .mb-empty{text-align:center;color:#C3B5EA;font-size:.9rem;padding:18px 10px;line-height:1.5}
+  .mb-empty .e-big{font-size:2rem;display:block;margin-bottom:6px}
+
+  .mb-foot{flex:0 0 auto;padding:10px 16px calc(12px + env(safe-area-inset-bottom));
+    border-top:1px solid rgba(255,255,255,.14);
+    display:flex;align-items:center;gap:9px;font-size:.7rem;color:#A798D8}
+  .mb-foot .f-when{flex:1 1 auto;line-height:1.3}
+  .mb-foot button,.mb-foot a{font-family:'Fredoka';font-weight:600;font-size:.72rem;
+    color:#E7DEFF;background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.2);
+    border-radius:11px;padding:6px 10px;cursor:pointer;text-decoration:none;white-space:nowrap;
+    -webkit-tap-highlight-color:transparent}
+  .mb-foot button:hover,.mb-foot a:hover{background:rgba(255,255,255,.2)}
+  .mb-foot button:focus-visible,.mb-foot a:focus-visible{outline:2px solid #fff;outline-offset:2px}
+  .mb-foot button[disabled]{opacity:.5;cursor:default}
+
+  .mb-skel{height:60px;border-radius:16px;background:linear-gradient(90deg,
+    rgba(255,255,255,.07),rgba(255,255,255,.16),rgba(255,255,255,.07));
+    background-size:200% 100%;animation:mbsk 1.3s linear infinite}
+  @keyframes mbsk{to{background-position:-200% 0}}
+
+  /* En modo edición el panel estorba */
+  body.editing .mb-tab{opacity:.35;pointer-events:none}
 </style>
 </head>
 <body>
@@ -364,6 +469,35 @@
     <div class="a-txt"><b id="alarmTitle">¡Es hora!</b><span id="alarmSub"></span></div>
     <button class="rk a-ok" id="alarmOk">¡Ya voy!</button>
   </div>
+
+  <!-- ============ MOCHILA DE MAÑANA (circular de la escuela) ============ -->
+  <button class="mb-tab" id="mbTab" aria-expanded="false" aria-controls="mochila"
+          title="Ver qué toca mañana">
+    <span class="mb-dot" id="mbDot" hidden></span>
+    <span class="mb-ico" aria-hidden="true">&#127890;</span>
+    <span class="mb-word">MA&Ntilde;ANA</span>
+  </button>
+
+  <div class="mb-bd" id="mbBackdrop" hidden></div>
+
+  <aside class="mochila" id="mochila" role="dialog" aria-modal="false"
+         aria-labelledby="mbTitle" aria-hidden="true">
+    <div class="mb-head">
+      <button class="mb-close" id="mbClose" aria-label="Cerrar">&#10005;</button>
+      <span class="mb-kick">BIT&Aacute;CORA &middot; 2&deg; VERDE</span>
+      <h2 class="mb-title" id="mbTitle">Para ma&ntilde;ana</h2>
+      <span class="mb-date" id="mbDate">&mdash;</span>
+    </div>
+    <div class="mb-body" id="mbBody">
+      <div class="mb-skel"></div><div class="mb-skel"></div>
+    </div>
+    <div class="mb-foot">
+      <span class="f-when" id="mbWhen">Consultando la hoja&hellip;</span>
+      <button id="mbRefresh" title="Volver a consultar">&#8635; Actualizar</button>
+      <a id="mbSheet" target="_blank" rel="noopener noreferrer"
+         href="https://docs.google.com/spreadsheets/d/1EbfPoX2oeHWejsjpqdnPXiwVjvn1UU5IzEWKoAiRxYU/htmlview">Hoja</a>
+    </div>
+  </aside>
 
 <script>
 (() => {
@@ -891,6 +1025,201 @@
   fpPlanets.addEventListener('pointercancel',endDrag);
 
   editBtn.addEventListener('click',()=>{ if(!editing) enterEdit(); else exitEditSave(); });
+
+  /* ============================================================
+     MOCHILA DE MAÑANA
+     ------------------------------------------------------------
+     Panel lateral con lo que hay que preparar para el próximo día
+     de clases. Dos fuentes:
+       · fija  — el horario de 2° Verde, que no cambia en el ciclo.
+       · viva  — la circular de la escuela, vía /api/circular.
+     Si la circular no se puede consultar (sin red, o abriendo el
+     archivo suelto) el panel sigue sirviendo: muestra lo fijo y
+     lo último que alcanzó a guardar.
+     ============================================================ */
+  const HORARIO_VERDE = {
+    1:{uniforme:'diario',   clases:[{h:'12:50',n:'Artísticas'}]},
+    2:{uniforme:'deportes', clases:[{h:'10:35',n:'Natación',lleva:'traje de baño, toalla y gorra'},
+                                    {h:'12:50',n:'Danza'}]},
+    3:{uniforme:'deportes', clases:[{h:'8:20', n:'Teatro'},
+                                    {h:'11:20',n:'Canto y Ritmos'}]},
+    4:{uniforme:'diario',   clases:[{h:'10:35',n:'Ed. Socioemocional'},
+                                    {h:'11:20',n:'Filosofía'}]},
+    5:{uniforme:'color',    clases:[{h:'9:05', n:'Ciudadanía Digital y Maker'},
+                                    {h:'12:05',n:'Ed. Física'}]}
+  };
+  const UNIFORME = {
+    diario:  {ico:'👕', val:'Uniforme diario',  note:''},
+    deportes:{ico:'👟', val:'Uniforme deportivo', note:'hay clase de deporte'},
+    color:   {ico:'🎨', val:'Color del mes',    note:'ropa cómoda o deportiva'}
+  };
+
+  const LS_MB='rutinaIsabella_circular_v1';
+  const mbTab=$('mbTab'), mbDot=$('mbDot'), mbPanel=$('mochila'), mbBd=$('mbBackdrop'),
+        mbBody=$('mbBody'), mbTitle=$('mbTitle'), mbDate=$('mbDate'),
+        mbWhen=$('mbWhen'), mbRefresh=$('mbRefresh'), mbClose=$('mbClose');
+
+  const ymdLocal=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+
+  /* ---------- abrir / cerrar ---------- */
+  function mbOpen(){
+    mbPanel.classList.add('open'); mbPanel.setAttribute('aria-hidden','false');
+    mbTab.setAttribute('aria-expanded','true');
+    mbBd.hidden=false; requestAnimationFrame(()=>mbBd.classList.add('show'));
+    mbClose.focus();
+  }
+  function mbCloseFn(){
+    mbPanel.classList.remove('open'); mbPanel.setAttribute('aria-hidden','true');
+    mbTab.setAttribute('aria-expanded','false');
+    mbBd.classList.remove('show');
+    setTimeout(()=>{ if(!mbPanel.classList.contains('open')) mbBd.hidden=true; },240);
+  }
+  mbTab.addEventListener('click',()=>mbPanel.classList.contains('open')?mbCloseFn():mbOpen());
+  mbClose.addEventListener('click',mbCloseFn);
+  mbBd.addEventListener('click',mbCloseFn);
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape'&&mbPanel.classList.contains('open')) mbCloseFn();
+  });
+
+  /* ---------- pintar ---------- */
+  function mbRender(d){
+    const dow = d && d.para ? d.para.dow : null;
+    const fijo = dow!=null ? HORARIO_VERDE[dow] : null;
+    const out = [];
+
+    // 1. ¿Mañana hay clases?
+    if(d && d.sinClases){
+      out.push(`<div class="mb-alert libre"><b><span class="h-ico">🎉</span>Mañana no hay clases</b>${esc(d.sinClases)}</div>`);
+    }
+
+    // 2. Uniforme — lo primero que se pregunta en la mañana
+    if(fijo && !(d && d.sinClases)){
+      const u = UNIFORME[fijo.uniforme];
+      out.push(`<div class="mb-uni ${fijo.uniforme}">
+        <span class="u-ico" aria-hidden="true">${u.ico}</span>
+        <span><span class="u-lbl">UNIFORME</span>
+          <span class="u-val">${u.val}</span>
+          ${u.note?`<span class="u-note">${u.note}</span>`:''}</span></div>`);
+    }
+
+    // 3. Evento del día
+    if(d && d.aviso){
+      out.push(`<div class="mb-alert evento"><b><span class="h-ico">⭐</span>Aviso del día</b>${esc(d.aviso)}</div>`);
+    }
+
+    // 4. Recados de "traer / venir con…" que la escuela cuela entre las tareas
+    const llevar = (d&&d.tareas||[]).filter(t=>t.esLlevar);
+    const tareas = (d&&d.tareas||[]).filter(t=>!t.esLlevar);
+    const material = (d&&d.material)||[];
+    if(llevar.length || material.length){
+      const li = llevar.map(t=>`<li><span class="mb-b">📌</span><span>${esc(t.tarea)}</span></li>`)
+        .concat(material.map(m=>`<li><span class="mb-b">📦</span><span>
+          <span class="mb-tagline">${esc(m.clase)}</span>${esc(m.material)}</span></li>`)).join('');
+      out.push(`<div class="mb-alert llevar"><b><span class="h-ico">🎒</span>Hay que llevar</b>
+        <ul style="margin-top:6px">${li}</ul></div>`);
+    }
+
+    // 5. Tarea
+    if(tareas.length){
+      out.push(`<div class="mb-card"><h3><span class="h-ico">📝</span>Tarea</h3><ul>${
+        tareas.map(t=>`<li><span class="mb-b">${t.materia==='English'?'🇬🇧':'📖'}</span><span>
+          <span class="mb-tagline">${esc(t.materia)}</span>${esc(t.tarea)}</span></li>`).join('')
+      }</ul></div>`);
+    }
+
+    // 6. Qué se entrega
+    if(d && d.entregar && d.entregar.length){
+      out.push(`<div class="mb-card"><h3><span class="h-ico">📤</span>Entregar</h3><ul>${
+        d.entregar.map(t=>`<li><span class="mb-b">✅</span><span>
+          <span class="mb-tagline">${esc(t.materia)}</span>${esc(t.evidencia)}</span></li>`).join('')
+      }</ul></div>`);
+    }
+
+    // 7. Clases del día
+    if(fijo && !(d && d.sinClases)){
+      out.push(`<div class="mb-card"><h3><span class="h-ico">🪐</span>Clases de mañana</h3><ul>${
+        fijo.clases.map(c=>`<li><span class="mb-b">🕒</span><span>
+          <span class="mb-tagline">${esc(c.h)}</span>${esc(c.n)}${
+            c.lleva?`<span class="u-note" style="display:block;font-size:.78rem;color:var(--ink-soft)">lleva ${esc(c.lleva)}</span>`:''
+          }</span></li>`).join('')
+      }</ul></div>`);
+    }
+
+    // Nada que preparar: dilo con todas sus letras, es la mejor noticia
+    if(!tareas.length && !llevar.length && !material.length && !(d&&d.entregar&&d.entregar.length)){
+      const msg = (d && d.mensaje) ? esc(d.mensaje) : 'No hay tarea ni nada especial que llevar.';
+      out.push(`<div class="mb-empty"><span class="e-big">🌟</span>${msg}</div>`);
+    }
+
+    mbBody.innerHTML = out.join('');
+
+    // El punto rojo del botón avisa sin tener que abrir el panel
+    const pendiente = tareas.length||llevar.length||material.length||(d&&d.sinClases)||(d&&d.aviso);
+    mbDot.hidden = !pendiente;
+
+    if(d && d.para){
+      mbTitle.textContent = d.para.esManana ? 'Para mañana' : `Para el ${d.para.diaSemana}`;
+      mbDate.textContent  = d.para.etiqueta;
+    }
+  }
+
+  /* ---------- consultar la circular ---------- */
+  function mbCache(){ try{ return JSON.parse(localStorage.getItem(LS_MB))||null; }catch(e){ return null; } }
+
+  async function mbLoad(forzar){
+    const hoy = ymdLocal(new Date());
+    const cache = mbCache();
+
+    // Lo guardado sirve mientras sea del mismo día: la circular no cambia
+    // a media jornada y así el panel abre al instante.
+    if(!forzar && cache && cache.consultado===hoy){
+      mbRender(cache.data);
+      mbWhen.textContent = 'Consultado hoy';
+      return;
+    }
+    if(cache) mbRender(cache.data);              // algo que ver mientras carga
+    mbRefresh.disabled = true;
+    mbWhen.textContent = 'Consultando la hoja…';
+
+    try{
+      const r = await fetch(`api/circular?date=${hoy}`, {cache:'no-store'});
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      const data = await r.json();
+      mbRender(data);
+      mbWhen.textContent = data.ok
+        ? `Circular «${data.pestana||'—'}» · al día`
+        : (data.mensaje||'Sin datos de la escuela');
+      try{ localStorage.setItem(LS_MB,JSON.stringify({consultado:hoy,data})); }catch(e){}
+    }catch(e){
+      // Sin conexión (o abierto como archivo suelto): lo fijo sigue en pie.
+      if(cache){
+        mbWhen.textContent = `Sin conexión · datos del ${cache.consultado}`;
+      }else{
+        // Sin datos no podemos afirmar que no hay tarea, solo que no se supo.
+        mbRender({para:mbParaLocal(),
+          mensaje:'No se pudo consultar la circular de la escuela. Revisa la conexión.'});
+        mbWhen.textContent = 'No se pudo consultar la hoja';
+      }
+    }finally{
+      mbRefresh.disabled = false;
+    }
+  }
+
+  // Próximo día de clases calculado en el propio iPad, para poder mostrar
+  // uniforme y clases aunque la hoja no responda.
+  function mbParaLocal(){
+    const DIAS=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+    const MES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto',
+               'septiembre','octubre','noviembre','diciembre'];
+    const hoy=new Date(), o=new Date(hoy);
+    do{ o.setDate(o.getDate()+1); }while(o.getDay()===0||o.getDay()===6);
+    return {fecha:ymdLocal(o), diaSemana:DIAS[o.getDay()], dow:o.getDay(),
+      esManana:Math.round((o-hoy)/86400000)===1,
+      etiqueta:`${DIAS[o.getDay()]} ${o.getDate()} de ${MES[o.getMonth()]}`};
+  }
+
+  mbRefresh.addEventListener('click',()=>mbLoad(true));
+  mbLoad(false);
 
   /* ---------- arranque ---------- */
   buildDaySelect();

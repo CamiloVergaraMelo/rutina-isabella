@@ -67,6 +67,49 @@ Convertir el board (hoy con las estaciones "hardcodeadas") en una app **data-dri
 
 Falta que Camilo confirme horarios reales y si Isabella tiene clase/deporte fijo algún día.
 
+## Integración con la escuela (Colegio Álamos Cancún)
+
+Isabella cursa **2° Verde**. El colegio publica una hoja de cálculo pública,
+`INFORMACIÓN GENERAL 2° PRIMARIA`
+(`1EbfPoX2oeHWejsjpqdnPXiwVjvn1UU5IzEWKoAiRxYU`), con directorio, horarios,
+calendario del ciclo y una **circular quincenal** con la tarea de cada día.
+
+### Panel "Mochila de mañana"
+Panel lateral derecho (pestaña «MAÑANA» en el borde) con lo que hay que
+preparar para el próximo día de clases: uniforme, clases, tarea, qué llevar,
+qué entregar y avisos. Un punto rojo en la pestaña marca que hay pendientes.
+En fin de semana apunta al lunes.
+
+### Horario de 2° Verde (fijo todo el ciclo, va en `HORARIO_VERDE`)
+| Día | Uniforme | Clases |
+|---|---|---|
+| Lunes | Diario | Artísticas 12:50 |
+| Martes | Deportes | Natación 10:35 · Danza 12:50 |
+| Miércoles | Deportes | Teatro 8:20 · Canto y Ritmos 11:20 |
+| Jueves | Diario | Ed. Socioemocional 10:35 · Filosofía 11:20 |
+| Viernes | Color del mes (cómoda/deportiva) | Ciudadanía Digital y Maker 9:05 · Ed. Física 12:05 |
+
+Jornada: entrada 7:00–7:35 · lunch 9:50 · receso 10:05–10:35 · salida
+14:15–14:40. Isabella **se queda a Hunters' Academies** por la tarde, así que
+llega a casa alrededor de las 4:00 pm: la estación "Al volver · 4:00 pm" de la
+rutina de escuela es correcta (confirmado por Camilo, 9 sep 2026).
+
+### Cómo se lee la hoja (`api/circular.js`)
+- La hoja es pública pero **sin CORS**, por eso hace falta el proxy en Vercel.
+- Los `gid` de las pestañas no se pueden fijar: la escuela crea una pestaña
+  nueva cada quincena (`31ago-11sep`, `14-25sep`…). Se descubren leyendo el
+  `htmlview` en cada consulta.
+- La tarea del día siguiente vive en la fila del día de **hoy**
+  (`TAREA PARA EL JUEVES` en la fila `MIÉRCOLES 9 de septiembre`).
+- Los avisos de "Día inhábil" y "Suspensión de clases" no van en el
+  encabezado sino en la columna de actividades de la fila de Español.
+- El **calendario de eventos NO se puede leer**: sus notas son comentarios de
+  celda y la exportación CSV no los incluye. Los avisos relevantes igual
+  llegan por la circular, que sí trae "Hunty Show", "Toma de foto para
+  credencial", "Día Internacional de la Paz", etc.
+- El panel guarda la última consulta en `localStorage`, así que sigue
+  sirviendo sin conexión (y avisa que los datos no son de hoy).
+
 ## Infra / operación
 
 - **Vercel**: proyecto `rutina-isabella`. Plan Hobby.
